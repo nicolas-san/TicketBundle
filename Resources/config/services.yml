@@ -68,3 +68,19 @@ services:
         class: Hackzilla\Bundle\TicketBundle\EventListener\FileSubscriber
         tags:
             - { name: kernel.event_subscriber }
+
+    # based on Flodaq work https://github.com/flodaq/TicketNotificationBundle
+    # Hackzilla TicketEvent subscriber
+    hackzilla_ticket.notification.ticket_subscriber:
+        class: Hackzilla\Bundle\TicketBundle\EventListener\TicketSubscriber
+        arguments: ["@service_container"]
+        tags:
+            - { name: kernel.event_subscriber }
+
+    # based on Flodaq work https://github.com/flodaq/TicketNotificationBundle
+    # Mailers
+    hackzilla_ticket.notification.mailer:
+        class: Hackzilla\Bundle\TicketBundle\Mailer\Mailer
+        arguments:
+          - '@service_container'
+          - '@hackzilla_ticket.features'

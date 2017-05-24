@@ -1,5 +1,7 @@
 # Ticketing Bundle v3
 
+Currently v3 is a work in progress, please use v2.
+
 Simple multilingual ticketing bundle to add to any project.
 Languages: English, French, Russian, German and Spanish.
 
@@ -50,11 +52,8 @@ These optional features that can be turned on or off.
 * [Attachments](Resources/doc/setup/feature/attachments.md)
 * [Custom Entities](Resources/doc/setup/feature/custom-entities.md)
 * [Events](Resources/doc/setup/feature/events.md)
-
-# 3rd Party Extensions
-
-# [Email Notification](https://github.com/flodaq/TicketNotificationBundle)
-
+* [Ticket from mail](Resources/doc/setup/feature/ticket_from_mail.md)
+* [Notification](Resources/doc/setup/feature/notification.md)
 
 ## Custom Templates (Optional)
 

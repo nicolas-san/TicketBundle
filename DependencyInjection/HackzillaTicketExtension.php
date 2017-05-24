@@ -31,6 +31,13 @@ class HackzillaTicketExtension extends Extension
 
         $container->setParameter('hackzilla_ticket.features', $config['features']);
         $container->setParameter('hackzilla_ticket.templates', $config['templates']);
+
+        //imported from the flodaq work https://github.com/flodaq/TicketNotificationBundle/
+        $container->setParameter('hackzilla_ticket.notification.emails', $config['notification']['emails']);
+        $container->setParameter('hackzilla_ticket.notification.templates', $config['notification']['templates']);
+
+        //added for from_mail feature
+        $container->setParameter('hackzilla_ticket.from_mail', $config['from_mail']);
     }
 
     public static function bundleDirectory()

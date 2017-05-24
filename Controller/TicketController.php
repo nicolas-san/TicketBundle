@@ -9,10 +9,14 @@ use Hackzilla\Bundle\TicketBundle\Model\TicketInterface;
 use Hackzilla\Bundle\TicketBundle\Model\TicketMessageInterface;
 use Hackzilla\Bundle\TicketBundle\TicketEvents;
 use Hackzilla\Bundle\TicketBundle\TicketRole;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
-
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 /**
  * Ticket controller.
  */
@@ -29,7 +33,24 @@ class TicketController extends Controller
     {
         $userManager = $this->getUserManager();
         $ticketManager = $this->get('hackzilla_ticket.ticket_manager');
+        $ticketFeature = $this->get('hackzilla_ticket.features');
 
+        //run only if the ticket from mail feature is enabled
+        //todo: add parameter to not do this if you use cron + console command instead
+        //it's better to refactor console command to not use console command in controller, but to bvoid code duplication, better way should be to create a service, and use it both in here and the console command ?
+        if($ticketFeature->hasFeature('from_mail')) {
+            $kernel = $this->get('kernel');
+            $application = new Application($kernel);
+            $application->setAutoExit(false);
+            $input = new ArrayInput(array(
+                'command' => 'ticket:create_from_mail'
+            ));
+            //no need of output here
+            $output = new NullOutput();
+            $application->run($input, $output);
+        }
+
+        //sure tickets are saved before the page is displayed ?
         $ticketState = $request->get('state', $this->get('translator')->trans('STATUS_OPEN'));
         $ticketPriority = $request->get('priority', null);
 
@@ -39,6 +60,7 @@ class TicketController extends Controller
             $ticketManager->getTicketPriority($ticketPriority)
         );
 
+        //todo: make parameter for paginator
         $pagination = $this->get('knp_paginator')->paginate(
             $query->getQuery(),
             $request->query->get('page', 1)/*page number*/,

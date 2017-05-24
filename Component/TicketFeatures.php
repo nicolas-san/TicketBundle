@@ -19,6 +19,15 @@ class TicketFeatures
             $features['attachment'] = false;
         }
 
+        if (!empty($features['from_mail']) && !is_a($messageClass, MessageAttachmentInterface::class, true)
+        ) {
+            $features['from_mail'] = false;
+        }
+
+        if (!empty($features['notification'])) {
+            $features['notification'] = true;
+        }
+
         $this->features = $features;
     }
 
@@ -32,7 +41,7 @@ class TicketFeatures
     public function hasFeature($feature)
     {
         if (!isset($this->features[$feature])) {
-            return null;
+            return false;
         }
 
         return $this->features[$feature];

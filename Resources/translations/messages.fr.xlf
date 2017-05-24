@@ -206,6 +206,63 @@
         <source>LABEL_ATTACHMENT</source>
         <target>Pièce jointe</target>
       </trans-unit>
+      <!-- emails -->
+      <trans-unit id="emails_ticket_new_subject">
+        <source>emails.ticket.new.subject</source>
+        <target>[Nouveau] Le ticket [#%number%] vient d''être soumis par %sender%</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_new_content">
+        <source>emails.ticket.new.content</source>
+        <target>Le ticket #%number% a été soumis par %sender% le %date%. Voici son contenu :</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_new_status">
+        <source>emails.ticket.new.status</source>
+        <target>"%status%"</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_new_priority">
+        <source>emails.ticket.new.priority</source>
+        <target>"%priority%"</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_new_link">
+        <source>emails.ticket.new.link</source>
+        <target>Pour consulter les détails du ticket et y répondre, veuillez suivre <![CDATA[<a href="%link%">ce lien</a>]]>.</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_new_plainlink">
+        <source>emails.ticket.new.plainlink</source>
+        <target>Pour consulter les détails du ticket et y répondre, veuillez suivre ce lien : %link%.</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_update_subject">
+        <source>emails.ticket.update.subject</source>
+        <target>[Mise à jour] Le ticket [#%number%] vient d''être mis à jour par %sender%</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_update_content">
+        <source>emails.ticket.update.content</source>
+        <target>Le ticket #%number% a été mis à jour par %sender% le %date%. Voici son commentaire :</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_update_status">
+        <source>emails.ticket.update.status</source>
+        <target>"%status%"</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_update_priority">
+        <source>emails.ticket.update.priority</source>
+        <target>"%priority%"</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_update_link">
+        <source>emails.ticket.update.link</source>
+        <target>To view the ticket and answer to it, please follow <![CDATA[<a href="%link%">this link</a>]]>.</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_update_plainlink">
+        <source>emails.ticket.update.plainlink</source>
+        <target>Pour consulter les détails du ticket et y répondre, veuillez suivre ce lien : %link%.</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_delete_subject">
+        <source>emails.ticket.delete.subject</source>
+        <target>[Suppression] Le ticket [#%number%] vient d''être supprimé par %sender%</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_delete_content">
+        <source>emails.ticket.delete.content</source>
+        <target>Le ticket #%number% a été supprimé par %sender% le %date%. Voici son commentaire :</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

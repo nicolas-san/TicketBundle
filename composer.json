@@ -33,7 +33,8 @@
         "knplabs/knp-paginator-bundle": "~2.3"
     },
     "suggest": {
-        "vich/uploader-bundle": "Allow attaching files to ticket messages"
+        "vich/uploader-bundle": "Allow attaching files to ticket messages",
+        "php-imap/php-imap": "To fetch email from an imap server for the ticket_from_mail feature"
     },
     "require-dev": {
         "symfony/form": "^2.8 || ^3.0",
