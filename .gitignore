@@ -2,3 +2,5 @@ vendor/
 composer.lock
 .php_cs.cache
 /Controller/TicketFromMailController.php
+/.idea/
+

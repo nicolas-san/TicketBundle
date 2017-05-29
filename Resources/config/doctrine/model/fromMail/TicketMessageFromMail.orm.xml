@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Hackzilla\Bundle\TicketBundle\Entity\TicketMessageFromMail" table="ticket_message">
+    <id name="id" type="integer" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="mailDate" type="datetime" column="mail_date" precision="0" scale="0" nullable="true"/>
+    <field name="messagePlain" type="text" column="message_plain" precision="0" scale="0" nullable="true"/>
+    <field name="messageHtml" type="text" column="message_html" precision="0" scale="0" nullable="true"/>
+    <field name="headerRaw" type="text" column="header_raw" precision="0" scale="0" nullable="true"/>
+    <field name="from" type="object" column="from" precision="0" scale="0" nullable="true"/>
+    <field name="replyTo" type="object" column="reply_to" precision="0" scale="0" nullable="true"/>
+
+    <many-to-one field="ticket" target-entity="Hackzilla\Bundle\TicketBundle\Entity\TicketFromMail" inversed-by="messages" fetch="LAZY">
+      <join-columns>
+        <join-column name="ticket_id" referenced-column-name="id" on-delete="CASCADE" nullable="1"/>
+      </join-columns>
+    </many-to-one>
+  </entity>
+</doctrine-mapping>
