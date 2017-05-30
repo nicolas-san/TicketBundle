@@ -78,7 +78,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 // Get the first message and save its attachment(s) to disk:
                 $mail = $mailbox->getMail($mailsId);
 
-                dump($mail->headers->subject);
                 //resolv utf8 issues
                 $mail->headers->subject = imap_utf8($mail->headers->subject);
 
@@ -92,14 +91,13 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 //check the mail subject (\[#[0-9]*[\]])
                 $result = preg_match('(\[#[0-9]*[\]])', $mail->headers->subject, $ticketRef);
 
-                dump($mail->headers->subject);
                 //I find a ticket ref [#xxxx] in the subject, I have to extract the id, and verify if the ticket exists
                 if ($result > 0) {
                     //search the ref
                     preg_match('([#]\d*)', $ticketRef[0], $ticketId);
                     //get the number
                     $ticketId = explode('#', $ticketId[0]);
-                    dump($ticketId);
+
                     //check if the ticket exists
                     $ticket = $ticketManager->getTicketById($ticketId[1]);
 
