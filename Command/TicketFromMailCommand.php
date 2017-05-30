@@ -136,6 +136,8 @@ class TicketFromMailCommand extends ContainerAwareCommand
 
                     //update the ticket once, to have a ticket ID if it's a new one, needed for the attachment
                     $ticketManager->updateTicket($ticket, $message);
+                } else {
+                    $message = $ticketManager->createMessage($ticket);
                 }
 
                 if ($mail->textPlain) {
