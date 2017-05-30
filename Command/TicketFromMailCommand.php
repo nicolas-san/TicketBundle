@@ -113,16 +113,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     $newTicket = true;
                 }
 
-                if ($newTicket) {
-                    $ticket = $ticketManager->createTicket();
-                    $ticket->setSubject($mail->headers->subject);
-                    //we need to link a message in the new ticket
-                    $message = $ticketManager->createMessage($ticket);
-                }
-
-                $ticket->setUserCreated($owner);
-                $ticket->setLastUser($owner);
-
                 //ticket user should be the user owner of the mail, if it's in the db, else we can use the owner
                 if ($messageOwner = $userManager->findUserBy(['email' => $mailTo])) {
                     //do nothing because the assignation is done in the if condition, but good practice or not ?
@@ -132,12 +122,21 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 }
 
                 if ($newTicket) {
+                    $ticket = $ticketManager->createTicket();
+                    $ticket->setSubject($mail->headers->subject);
+                    //we need to link a message in the new ticket
+                    $message = $ticketManager->createMessage($ticket);
+
+                    $ticket->setUserCreated($owner);
+                    $ticket->setLastUser($owner);
+
                     $message->setStatus(TicketMessageInterface::STATUS_OPEN)
                         ->setUser($messageOwner)
                         ->setMailDate(new \DateTime($mail->headers->date));
+
+                    //update the ticket once, to have a ticket ID if it's a new one, needed for the attachment
+                    $ticketManager->updateTicket($ticket, $message);
                 }
-                //update the ticket once, to have a ticket ID if it's a new one, needed for the attachment
-                $ticketManager->updateTicket($ticket, $message);
 
                 if ($mail->textPlain) {
                     $message->setMessage($mail->textPlain);
