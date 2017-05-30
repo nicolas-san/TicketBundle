@@ -97,7 +97,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     preg_match('([#]\d*)', $ticketRef[0], $ticketId);
                     //get the number
                     $ticketId = explode('#', $ticketId[0]);
-
                     //check if the ticket exists
                     $ticket = $ticketManager->getTicketById($ticketId[1]);
 
@@ -132,10 +131,11 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     $messageOwner = $owner;
                 }
 
-                $message->setStatus(TicketMessageInterface::STATUS_OPEN)
-                    ->setUser($messageOwner)
-                    ->setMailDate(new \DateTime($mail->headers->date));
-
+                if ($newTicket) {
+                    $message->setStatus(TicketMessageInterface::STATUS_OPEN)
+                        ->setUser($messageOwner)
+                        ->setMailDate(new \DateTime($mail->headers->date));
+                }
                 //update the ticket once, to have a ticket ID if it's a new one, needed for the attachment
                 $ticketManager->updateTicket($ticket, $message);
 
