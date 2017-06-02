@@ -9,6 +9,7 @@ use Hackzilla\Bundle\TicketBundle\Model\TicketMessageInterface;
 
 /**
  * Ticket Message.
+ *
  */
 class TicketMessageWithAttachment implements TicketMessageInterface, MessageAttachmentInterface
 {

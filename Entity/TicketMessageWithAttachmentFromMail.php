@@ -7,9 +7,11 @@ use Hackzilla\Bundle\TicketBundle\Entity\Traits\TicketFeature\MessageFromMailTra
 use Hackzilla\Bundle\TicketBundle\Entity\Traits\TicketMessageTrait;
 use Hackzilla\Bundle\TicketBundle\Model\TicketFeature\MessageAttachmentInterface;
 use Hackzilla\Bundle\TicketBundle\Model\TicketMessageInterface;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * Ticket Message.
+ * @Vich\Uploadable
  */
 class TicketMessageWithAttachmentFromMail implements TicketMessageInterface, MessageAttachmentInterface
 {
