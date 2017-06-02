@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class TicketFromMailCommand extends ContainerAwareCommand
@@ -156,18 +157,36 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 $message->setUser($messageOwner);
 
                 //managing attchments
+                //just the first for now because the message manage only one attachment, we need to manage an attchment collection for multiple files
                 foreach ($mail->getAttachments() as $attachment) {
                     //set the attachment name
                     $message->setAttachmentName($attachment->name);
                     //set the attachemnt file, vich require an UploadedFile object
                     //https://github.com/dustin10/VichUploaderBundle/blob/master/Resources/doc/known_issues.md#no-upload-is-triggered-when-manually-injecting-an-instance-of-symfonycomponenthttpfoundationfilefile
-                    $message->setAttachmentName(new UploadedFile($attachment->filePath, $attachment->name));
+                    $message->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
+
+                    //dump($attachment); die();
+                    break;
                 }
 
                 //add this message to the current ticket
                 $ticket->addMessage($message);
 
                 $ticketManager->updateTicket($ticket, $message);
+
+                try {
+                    $ticketManager->updateTicket($ticket, $message);
+                } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException $fileException) {
+                    //delete attachment and save again
+                    $message->setAttachmentName(null);
+                    $message->setAttachmentFile(null);
+
+                    //add in the message body an info about the attachment failure
+                    $message->setMessagePlain($message->getMessagePlain() . "\r\n This message add an invalid attachment file, the system ignore it");
+                    $message->setMessageHtml($message->getMessageHtml() . "\r\n This message add an invalid attachment file, the system ignore it" );
+
+                    $ticketManager->updateTicket($ticket, $message);
+                }
 
                 $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE, new TicketEvent($ticket));
 
