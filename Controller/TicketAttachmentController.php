@@ -2,7 +2,7 @@
 
 namespace Hackzilla\Bundle\TicketBundle\Controller;
 
-use Hackzilla\Bundle\TicketBundle\Entity\TicketMessageWithAttachment;
+use Hackzilla\Bundle\TicketBundle\Model\TicketFeature\MessageAttachmentInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
@@ -24,7 +24,8 @@ class TicketAttachmentController extends Controller
         $ticketManager = $this->get('hackzilla_ticket.ticket_manager');
         $ticketMessage = $ticketManager->getMessageById($ticketMessageId);
 
-        if (!$ticketMessage || !$ticketMessage instanceof TicketMessageWithAttachment) {
+        //change instanceof TicketMessageWithAttachment for MessageAttachmentInterface, all feature using attachment must implements this class
+        if (!$ticketMessage || !$ticketMessage instanceof MessageAttachmentInterface) {
             throw $this->createNotFoundException($this->get('translator')->trans('ERROR_FIND_TICKET_ENTITY'));
         }
 
