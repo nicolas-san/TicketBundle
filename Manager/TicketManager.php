@@ -181,10 +181,10 @@ class TicketManager implements TicketManagerInterface
      *
      * @return mixed
      */
-    public function getTicketList(UserManagerInterface $userManager, $ticketStatus, $ticketPriority = null)
+    public function getTicketList(UserManagerInterface $userManager, $ticketStatus, $ticketPriority = null, $showTicketsToAllAdmin = false)
     {
         $query = $this->ticketRepository->createQueryBuilder('t')
-//            ->select($this->ticketClass.' t')
+        //  ->select($this->ticketClass.' t')
             ->orderBy('t.lastMessage', 'DESC');
 
         switch ($ticketStatus) {
@@ -209,18 +209,19 @@ class TicketManager implements TicketManagerInterface
 
         $user = $userManager->getCurrentUser();
 
-        if (\is_object($user)) {
+        if (\is_object($user) && false === $showTicketsToAllAdmin) {
             if (!$userManager->hasRole($user, TicketRole::ADMIN)) {
                 $query
                     ->andWhere('t.userCreated = :userId')
                     ->setParameter('userId', $user->getId());
             }
-        } else {
+        } elseif (true === false) {
             // anonymous user
             $query
                 ->andWhere('t.userCreated = :userId')
                 ->setParameter('userId', 0);
         }
+        //else, we do nothing to not select ticket by user, but show all tickets to all admins
 
         return $query;
     }
