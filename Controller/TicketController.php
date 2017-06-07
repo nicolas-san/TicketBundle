@@ -54,8 +54,6 @@ class TicketController extends Controller
         $ticketState = $request->get('state', $this->get('translator')->trans('STATUS_OPEN'));
         $ticketPriority = $request->get('priority', null);
 
-        //dump($this->container->getParameter('hackzilla_ticket.show_tickets_to_all_admin'));
-        //die();
         if (true === $this->container->getParameter('hackzilla_ticket.model.show.ticket.to.all.admin')) {
             //get all tickets to show to all admins
             $query = $ticketManager->getTicketList(
@@ -73,7 +71,6 @@ class TicketController extends Controller
                 $ticketManager->getTicketPriority($ticketPriority)
             );
         }
-
 
         //todo: make parameter for paginator
         $pagination = $this->get('knp_paginator')->paginate(
