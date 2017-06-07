@@ -90,16 +90,33 @@ class Mailer
         if ($message->getUser() !== $creator->getId()) {
             $recipients[] = $creator->getEmail();
         }
-        
+
         // Add every user with the ROLE_TICKET_ADMIN role
         /** @var User $user */
         foreach ($users as $user) {
             if ($user->hasRole('ROLE_TICKET_ADMIN')) {
-                if (!in_array($user->getEmail(), $recipients) &&
-                    $message->getUser() !== $user->getId()) {
+                if (!in_array($user->getEmail(), $recipients) && $message->getUser() !== $user->getId()) {
                     $recipients[] = $user->getEmail();
                 }
             }
+        }
+
+        //if the from_mail functionality is active, we send the ticket messages to the user email who open the ticket
+        if ($this->features->hasFeature('from_mail')) {
+            //always take the first message, because it has the mail adresses of the user
+            $firstMessage = $ticket->getMessages()->first();
+
+            //replyTo or mailFrom = mailTo
+            if ($firstMessage->getReplyTo()) {
+                $mailTo = $firstMessage->getReplyTo()->mailbox . "@" . $firstMessage->getReplyTo()->host;
+                //add the user to the recipients list
+                $recipients[] = $mailTo;
+            } elseif ($firstMessage->getFrom()) {
+                $mailTo = $firstMessage->getFrom()->mailbox . "@" . $firstMessage->getFrom()->host;
+                //add the user to the recipients list
+                $recipients[] = $mailTo;
+            }
+            //if we dont have the reply_to or the from we do nothing
         }
 
         // Prepare email headers
@@ -141,7 +158,7 @@ class Mailer
             ->setSubject($subject)
             ->setFrom(array(
                 $this->container->getParameter('hackzilla_ticket.notification.emails')['sender_email']
-                    => $this->container->getParameter('hackzilla_ticket.notification.emails')['sender_name']
+                => $this->container->getParameter('hackzilla_ticket.notification.emails')['sender_name']
             ))
             ->setTo($to);
     }
