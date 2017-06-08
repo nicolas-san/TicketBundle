@@ -263,6 +263,72 @@
         <source>emails.ticket.delete.content</source>
         <target>The ticket #%number% has been deleted %sender% at %date%. Here is comment :</target>
       </trans-unit>
+      <!-- emails for ticket from mail -->
+      <trans-unit id="emails_ticket_from_mail_new_subject">
+        <source>emails.ticket.from.mail.new.subject</source>
+        <target>Your demand will be shortly process under the ticket [#%number%]</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_new_content">
+        <source>emails.ticket.from.mail.new.content</source>
+        <target>Your ticket number is %number%, recieved on  %date%. We will process your demand and contact you.
+          Thank you for contacting us.</target>
+      </trans-unit>
+      <!--<trans-unit id="emails_ticket_from_mail_new_subject">
+        <source>emails.ticket.from.mail.new.subject</source>
+        <target>Your demand will be shortly process under the ticket [#%number%]</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_new_content">
+        <source>emails.ticket.from.mail.new.content</source>
+        <target>The ticket %number% % received on %date% content:</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_new_status">
+        <source>emails.ticket.from.mail.new.status</source>
+        <target>"%status%"</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_new_priority">
+        <source>emails.ticket.from.mail.new.priority</source>
+        <target>"%priority%"</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_new_link">
+        <source>emails.ticket.from.mail.new.link</source>
+        <target>To view the ticket and answer to it, please follow <![CDATA[<a href="%link%">this link</a>]]>.</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_new_plainlink">
+        <source>emails.ticket.from.mail.new.plainlink</source>
+        <target>To view the ticket and answer to it, please follow this link: %link%.</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_update_subject">
+        <source>emails.ticket.from.mail.update.subject</source>
+        <target>[Update] The ticket [#%number%] has been updated by %sender%</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_update_content">
+        <source>emails.ticket.from.mail.update.content</source>
+        <target>The ticket %number% has been updated by %sender% on %date%. Here is its comment:</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_update_status">
+        <source>emails.ticket.from.mail.update.status</source>
+        <target>"%status%"</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_update_priority">
+        <source>emails.ticket.from.mail.update.priority</source>
+        <target>"%priority%"</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_update_link">
+        <source>emails.ticket.from.mail.update.link</source>
+        <target>To view the ticket and answer to it, please follow <![CDATA[<a href="%link%">this link</a>]]>.</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_update_plainlink">
+        <source>emails.ticket.from.mail.update.plainlink</source>
+        <target>To view the ticket and answer to it, please follow this link: %link%.</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_delete_subject">
+        <source>emails.ticket.from.mail.delete.subject</source>
+        <target>[Delete] the ticket [#%number%] just be deleted by %sender%'</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_delete_content">
+        <source>emails.ticket.from.mail.delete.content</source>
+        <target>The ticket #%number% has been deleted %sender% at %date%. Here is comment :</target>
+      </trans-unit>-->
     </body>
   </file>
 </xliff>

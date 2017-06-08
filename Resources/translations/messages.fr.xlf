@@ -263,6 +263,15 @@
         <source>emails.ticket.delete.content</source>
         <target>Le ticket #%number% a été supprimé par %sender% le %date%. Voici son commentaire :</target>
       </trans-unit>
+      <!-- ticket from mail emails -->
+      <trans-unit id="emails_ticket_from_mail_new_subject">
+        <source>emails.ticket.from.mail.new.subject</source>
+        <target>Votre demande est bien prise en compte sous le ticket [#%number%]</target>
+      </trans-unit>
+      <trans-unit id="emails_ticket_from_mail_new_content">
+        <source>emails.ticket.from.mail.new.content</source>
+        <target>Votre numero de ticket support est %number%, pris en charge le  %date%. Merci de nous avoir contacté, nous traitons votre demande dans les plus brefs délais.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

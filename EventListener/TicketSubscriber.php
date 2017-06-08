@@ -3,6 +3,7 @@
  * @License MIT License
  *
  * @Copyright (c) 2016 Florent DAQUET
+ * @Copyright (c) 2017 Nicolas Bouteillier
  *
  */
 
@@ -39,6 +40,7 @@ class TicketSubscriber implements EventSubscriberInterface
     {
         return array(
             TicketEvents::TICKET_CREATE => 'ticketNotification',
+            TicketEvents::TICKET_CREATE_FROM_MAIL => 'ticketNotification',
             TicketEvents::TICKET_UPDATE => 'ticketNotification',
         );
     }
@@ -52,12 +54,24 @@ class TicketSubscriber implements EventSubscriberInterface
     public function ticketNotification(TicketEvent $event, $eventName)
     {
         $ticketFeature = $this->container->get('hackzilla_ticket.features');
+        $mailer = false;
 
-        if ($ticketFeature->hasFeature('from_mail') || $ticketFeature->hasFeature('notification')) {
+        if ($ticketFeature->hasFeature('notification')) {
             $mailer = $this->container->get('hackzilla_ticket.notification.mailer');
-            //the mailer service send notification, fromMail feature mails or both, depends on configuration
             /** @var Mailer $mailer */
             $mailer->sendTicketNotificationEmailMessage($event->getTicket(), $eventName);
+        }
+        //if the ticket from mail feature is activated we send a mail to the user
+        //if it's a new ticket from mail
+        if (TicketEvents::TICKET_CREATE_FROM_MAIL == $event) {
+            //no need to test if the feature is enabled, if not this event never occurs
+            if (!$mailer) {
+                //get the mailer, is it better to get the mailer outside the ifs, all the time instead of doing $mailer = false, and this if ?
+                $mailer = $this->container->get('hackzilla_ticket.notification.mailer');
+            }
+
+            /** @var Mailer $mailer */
+            $mailer->sendTicketUserNotificationEmailMessage($event->getTicket(), $eventName);
         }
     }
 

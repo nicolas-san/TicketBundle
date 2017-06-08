@@ -41,8 +41,7 @@ class Mailer
     }
 
     /**
-     * Send a notification by e-mail to the concerned users when a ticket has been created|modified|deleted.
-     * Send e-mail needed for the fromMail feature, if enabled
+     * Send a notification by e-mail to the ROLE_TICKET_ADMIN
      *
      * @param TicketWithAttachment $ticket
      * @param string $eventName
@@ -87,8 +86,11 @@ class Mailer
         // At least the ticket's owner must receive the notification
         $recipients = array();
 
-        if ($message->getUser() !== $creator->getId()) {
-            $recipients[] = $creator->getEmail();
+        if ($eventName != TicketEvents::TICKET_CREATE_FROM_MAIL) {
+            //if it's not a ticket by mail, we can notify the user, if it's not the creator
+            if ($message->getUser() !== $creator->getId()) {
+                $recipients[] = $creator->getEmail();
+            }
         }
 
         // Add every user with the ROLE_TICKET_ADMIN role
@@ -101,11 +103,69 @@ class Mailer
             }
         }
 
-        //if the from_mail functionality is active, we send the ticket messages to the user email who open the ticket
-        if ($this->features->hasFeature('from_mail')) {
-            //always take the first message, because it has the mail adresses of the user
-            $firstMessage = $ticket->getMessages()->first();
+        //todo send to the admins in bcc insteal of recipient to hide the admin emails
+        // Prepare email headers
+        $message = $this->prepareEmailMessage(
+            $subject,
+            $recipients
+        );
 
+        // Prepare template args
+        $args = array(
+            'ticket' => $ticket
+        );
+
+        // Create the message body in HTML
+        $format = 'text/html';
+        $this->addMessagePart($message, $templateHTML, $args, $format);
+
+        // Create the message body in plain text
+        $format = 'text/plain';
+        $this->addMessagePart($message, $templateTxt, $args, $format);
+
+        // Finally send the message
+        $this->sendEmailMessage($message);
+
+        return null;
+    }
+
+    /**
+     * Send a notification by e-mail to the ticket user
+     *
+     * @param TicketWithAttachment $ticket
+     * @param string $eventName
+     * @return null
+     */
+    public function sendTicketUserNotificationEmailMessage(TicketInterface $ticket, $eventName)
+    {
+        // Retrieve the creator
+        /** @var User $creator */
+        //creator is system or the first user with role_ticket_admnin
+        $creator = $ticket->getUserCreatedObject();
+
+        $subject = $this->container->get('translator')->trans('emails.ticket.from.mail.new.subject', array(
+            '%number%' => $ticket->getId(),
+            '%sender%' => $creator->getUsername(),
+        ));
+        $templateHTML = $this->container->getParameter('hackzilla_ticket.notification.from.mail.templates')['new_html'];
+        $templateTxt = $this->container->getParameter('hackzilla_ticket.notification.from.mail.templates')['new_txt'];
+
+        /** @var TicketMessage $message */
+        //we take the first here, to have the mail headers from the first sended message
+        $firstMessage = $ticket->getMessages()->first();
+
+        /** @var UserManager $userManager */
+        $userManager = $this->container->get('fos_user.user_manager');
+        $users = $userManager->findUsers();
+
+        // Prepare the recipients
+        // At least the ticket's owner must receive the notification
+        $recipients = array();
+
+        if ($message->getUser() !== $creator->getId()) {
+            $recipients[] = $creator->getEmail();
+        } else {
+            //we have to send to the emails collected in the first sended message from the user
             //replyTo or mailFrom = mailTo
             if ($firstMessage->getReplyTo()) {
                 $mailTo = $firstMessage->getReplyTo()->mailbox . "@" . $firstMessage->getReplyTo()->host;

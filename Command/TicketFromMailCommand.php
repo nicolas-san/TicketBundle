@@ -31,6 +31,8 @@ class TicketFromMailCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        //if ()
+        //TODO if the feature is not enable do nothing here !
         //set local from parameters
         $locale = $this->getContainer()->getParameter('locale');
         $this->getContainer()->get('translator')->setLocale($locale);
@@ -66,7 +68,7 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     // Add every user with the ROLE_TICKET_ADMIN role
                     /** @var User $user */
                     foreach ($users as $user) {
-                        if ($user->hasRole('ROLE_TICKET_ADMIN') || $user->hasRole('ROLE_ADMIN')) {
+                        if ($user->hasRole('ROLE_TICKET_ADMIN')) {
                             $owner = $user;
                             break;
                         }
@@ -188,7 +190,8 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     $ticketManager->updateTicket($ticket, $message);
                 }
 
-                $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE, new TicketEvent($ticket));
+                //$this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE, new TicketEvent($ticket));
+                $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE_FROM_MAIL, new TicketEvent($ticket));
 
                 //mark this mail for deletion
                 $mailbox->deleteMail($mailsId);
