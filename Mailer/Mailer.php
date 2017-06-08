@@ -86,7 +86,7 @@ class Mailer
         // At least the ticket's owner must receive the notification
         $recipients = array();
 
-        if ($eventName != TicketEvents::TICKET_CREATE_FROM_MAIL) {
+        if ($eventName != TicketEvents::TICKET_CREATE_FROM_MAIL && $eventName != TicketEvents::TICKET_UPDATE_FROM_MAIL) {
             //if it's not a ticket by mail, we can notify the user, if it's not the creator
             if ($message->getUser() !== $creator->getId()) {
                 $recipients[] = $creator->getEmail();

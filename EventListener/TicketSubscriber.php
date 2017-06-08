@@ -42,6 +42,7 @@ class TicketSubscriber implements EventSubscriberInterface
             TicketEvents::TICKET_CREATE => 'ticketNotification',
             TicketEvents::TICKET_CREATE_FROM_MAIL => 'ticketNotification',
             TicketEvents::TICKET_UPDATE => 'ticketNotification',
+            TicketEvents::TICKET_UPDATE_FROM_MAIL => 'ticketNotification',
         );
     }
 

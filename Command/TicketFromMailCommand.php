@@ -144,9 +144,9 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 }
 
                 if ($mail->textPlain) {
-                    $message->setMessage($mail->textPlain);
+                    $message->setMessage($mail->textPlain . "\r\n" . "From: " . $mailTo);
                 } else {
-                    $message->setMessage(addslashes(strip_tags($mail->textHtml)));
+                    $message->setMessage(addslashes(strip_tags($mail->textHtml))  . "<br />" . "From: " . $mailTo);
                 }
                 $message->setMessagePlain($mail->textPlain);
                 $message->setMessageHtml($mail->textHtml);
@@ -190,7 +190,11 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     $ticketManager->updateTicket($ticket, $message);
                 }
 
-                $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE_FROM_MAIL, new TicketEvent($ticket));
+                if ($newTicket) {
+                    $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE_FROM_MAIL, new TicketEvent($ticket));
+                } else {
+                    $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_UPDATE, new TicketEvent($ticket));
+                }
 
                 //mark this mail for deletion
                 $mailbox->deleteMail($mailsId);
