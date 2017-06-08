@@ -147,8 +147,8 @@ class Mailer
             '%number%' => $ticket->getId(),
             '%sender%' => $creator->getUsername(),
         ));
-        $templateHTML = $this->container->getParameter('hackzilla_ticket.notification.from.mail.templates')['new_html'];
-        $templateTxt = $this->container->getParameter('hackzilla_ticket.notification.from.mail.templates')['new_txt'];
+        $templateHTML = $this->container->getParameter('hackzilla_ticket.from_mail')['templates']['new_html'];
+        $templateTxt = $this->container->getParameter('hackzilla_ticket.from_mail')['templates']['new_txt'];
 
         /** @var TicketMessage $message */
         //we take the first here, to have the mail headers from the first sended message
@@ -162,7 +162,7 @@ class Mailer
         // At least the ticket's owner must receive the notification
         $recipients = array();
 
-        if ($message->getUser() !== $creator->getId()) {
+        if ($firstMessage->getUser() !== $creator->getId()) {
             $recipients[] = $creator->getEmail();
         } else {
             //we have to send to the emails collected in the first sended message from the user

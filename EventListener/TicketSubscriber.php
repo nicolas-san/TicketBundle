@@ -63,7 +63,7 @@ class TicketSubscriber implements EventSubscriberInterface
         }
         //if the ticket from mail feature is activated we send a mail to the user
         //if it's a new ticket from mail
-        if (TicketEvents::TICKET_CREATE_FROM_MAIL == $event) {
+        if (TicketEvents::TICKET_CREATE_FROM_MAIL == $eventName) {
             //no need to test if the feature is enabled, if not this event never occurs
             if (!$mailer) {
                 //get the mailer, is it better to get the mailer outside the ifs, all the time instead of doing $mailer = false, and this if ?

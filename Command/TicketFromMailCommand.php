@@ -190,7 +190,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     $ticketManager->updateTicket($ticket, $message);
                 }
 
-                //$this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE, new TicketEvent($ticket));
                 $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE_FROM_MAIL, new TicketEvent($ticket));
 
                 //mark this mail for deletion
