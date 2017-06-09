@@ -53,8 +53,9 @@ class Mailer
         /** @var User $creator */
         $creator = $ticket->getUserCreatedObject();
 
-        // Prepare the email according to the message type
+        // Prepare the email according to the message type, "from mail" or not, it's the create or update action we need to choose the tpl
         switch ($eventName) {
+            case TicketEvents::TICKET_CREATE_FROM_MAIL:
             case TicketEvents::TICKET_CREATE:
                 $subject = $this->container->get('translator')->trans('emails.ticket.new.subject', array(
                     '%number%' => $ticket->getId(),
@@ -64,6 +65,7 @@ class Mailer
                 $templateTxt = $this->container->getParameter('hackzilla_ticket.notification.templates')['new_txt'];
                 break;
             case TicketEvents::TICKET_UPDATE:
+            case TicketEvents::TICKET_UPDATE_FROM_MAIL:
                 $subject = $this->container->get('translator')->trans('emails.ticket.update.subject', array(
                     '%number%' => $ticket->getId(),
                     '%sender%' => $creator->getUsername(),
