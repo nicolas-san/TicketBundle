@@ -93,6 +93,20 @@ class Mailer
             if ($message->getUser() !== $creator->getId()) {
                 $recipients[] = $creator->getEmail();
             }
+            $firstMessage = $ticket->getMessages()->first();
+            //we have to send to the emails collected in the first sended message from the user
+            //replyTo or mailFrom = mailTo
+            if ($firstMessage->getReplyTo()) {
+                $mailTo = $firstMessage->getReplyTo()->mailbox . "@" . $firstMessage->getReplyTo()->host;
+                //add the user to the recipients list
+                $recipients[] = $mailTo;
+            } elseif ($firstMessage->getFrom()) {
+                $mailTo = $firstMessage->getFrom()->mailbox . "@" . $firstMessage->getFrom()->host;
+                //add the user to the recipients list
+                $recipients[] = $mailTo;
+            }
+            //in the case of we have a reply_to or a from mail in the first message of the ticket, we use it to send a notification
+
         }
 
         // Add every user with the ROLE_TICKET_ADMIN role
