@@ -24,5 +24,6 @@
         <join-column name="ticket_id" referenced-column-name="id" on-delete="CASCADE" nullable="1"/>
       </join-columns>
     </many-to-one>
+    <one-to-many field="attachments" target-entity="Hackzilla\Bundle\TicketBundle\Entity\TicketMessageAttachment" mapped-by="message" fetch="EAGER"/>
   </entity>
 </doctrine-mapping>

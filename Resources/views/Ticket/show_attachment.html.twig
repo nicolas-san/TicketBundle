@@ -1,8 +1,21 @@
+{% import 'HackzillaTicketBundle:Macros:macros.html.twig' as macros %}
 {% if message.attachmentName %}
-<br>
-<div class="ticket_attachment">
-    <span class="glyphicon glyphicon-paperclip"></span>
-    <a href="{{ path('hackzilla_ticket_attachment', {ticketMessageId: message.id}) }}">{{ message.attachmentName }}</a>
-    {% if message.attachmentSize is not null %}{{ macros.bytesToSize(message.attachmentSize) }}{% endif %}
-</div>
+    <br>
+    <div class="ticket_attachment">
+        <span class="glyphicon glyphicon-paperclip"></span>
+        <a href="{{ path('hackzilla_ticket_attachment', {ticketMessageId: message.id}) }}">{{ message.attachmentName }}</a>
+        {% if message.attachmentSize is not null %}{{ macros.bytesToSize(message.attachmentSize) }}{% endif %}
+    </div>
+{% endif %}
+
+{% if message.attachments is defined %}
+    <div class="ticket_attachment">
+
+    {% for attachment in message.attachments %}
+        <span class="glyphicon glyphicon-paperclip"></span>
+        <a href="{{ vich_uploader_asset(attachment, 'attachmentFile') }}" target="_blank">
+            {{ 'LABEL_DISPLAY_ATTACHMENT' | trans }}
+        </a>
+    {% endfor %}
+    </div>
 {% endif %}

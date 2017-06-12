@@ -272,6 +272,10 @@
         <source>emails.ticket.from.mail.new.content</source>
         <target>Votre numero de ticket support est %number%, pris en charge le  %date%. Merci de nous avoir contacté, nous traitons votre demande dans les plus brefs délais.</target>
       </trans-unit>
+      <trans-unit id="label_display_attachment">
+        <source>LABEL_DISPLAY_ATTACHMENT</source>
+        <target>Voir</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

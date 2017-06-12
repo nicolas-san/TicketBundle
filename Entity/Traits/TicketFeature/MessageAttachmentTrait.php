@@ -2,6 +2,7 @@
 
 namespace Hackzilla\Bundle\TicketBundle\Entity\Traits\TicketFeature;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
@@ -30,6 +31,11 @@ trait MessageAttachmentTrait
      * @var string
      */
     protected $attachmentMimeType;
+
+    /**
+     *
+     */
+    protected $attachments;
 
     /**
      * {@inheritdoc}
@@ -102,4 +108,21 @@ trait MessageAttachmentTrait
     {
         return $this->attachmentMimeType;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getAttachments()
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * @param mixed $attachments
+     */
+    public function setAttachments($attachments)
+    {
+        $this->attachments = $attachments;
+    }
+
 }

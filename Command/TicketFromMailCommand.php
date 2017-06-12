@@ -2,6 +2,7 @@
 
 namespace Hackzilla\Bundle\TicketBundle\Command;
 
+use Hackzilla\Bundle\TicketBundle\Entity\TicketMessageAttachment;
 use Hackzilla\Bundle\TicketBundle\Event\TicketEvent;
 use Hackzilla\Bundle\TicketBundle\Model\TicketMessageInterface;
 use Hackzilla\Bundle\TicketBundle\TicketEvents;
@@ -36,6 +37,7 @@ class TicketFromMailCommand extends ContainerAwareCommand
         //set local from parameters
         $locale = $this->getContainer()->getParameter('locale');
         $this->getContainer()->get('translator')->setLocale($locale);
+        $em = $this->getContainer()->get('doctrine')->getEntityManager();
 
         //set the user manager with parameter ? Or a special proxy service who load the available user_manager ?
         $userManager = $this->getContainer()->get('fos_user.user_manager');
@@ -158,18 +160,38 @@ class TicketFromMailCommand extends ContainerAwareCommand
 
                 $message->setUser($messageOwner);
 
-                //managing attchments
-                //just the first for now because the message manage only one attachment, we need to manage an attchment collection for multiple files
-                foreach ($mail->getAttachments() as $attachment) {
+                $nbAttachment = count($mail->getAttachments());
+
+                //managing attachments
+                if (1 == $nbAttachment) {
+                    //we put it directly in the message
                     //set the attachment name
-                    $message->setAttachmentName($attachment->name);
+                    $message->setAttachmentName($mail->getAttachments()[0]->name);
                     //set the attachemnt file, vich require an UploadedFile object
                     //https://github.com/dustin10/VichUploaderBundle/blob/master/Resources/doc/known_issues.md#no-upload-is-triggered-when-manually-injecting-an-instance-of-symfonycomponenthttpfoundationfilefile
-                    $message->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
+                    $message->setAttachmentFile(new UploadedFile($mail->getAttachments()[0]->filePath, $mail->getAttachments()[0]->name, null, null, null, true));
+                } elseif ($nbAttachment > 1) {
+                    //init the array
+                    $newAttachemnts = [];
+                    foreach ($mail->getAttachments() as $attachment) {
+                        //create a new attachment entity
+                        $newAttachemnt = new TicketMessageAttachment();
+                        $newAttachemnt->setMessage($message);
+                        //set the attachment name
+                        $newAttachemnt->setAttachmentFilename($attachment->name);
+                        //set the attachemnt file, vich require an UploadedFile object
+                        //https://github.com/dustin10/VichUploaderBundle/blob/master/Resources/doc/known_issues.md#no-upload-is-triggered-when-manually-injecting-an-instance-of-symfonycomponenthttpfoundationfilefile
+                        $newAttachemnt->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
 
-                    //dump($attachment); die();
-                    break;
+                        $em->persist($newAttachemnt);
+                        //todo optimize here to do the flush outside the loop
+                        $em->flush();
+
+                        $newAttachemnts[] = $newAttachemnt;
+                    }
+                    //$message->setAttachments($newAttachemnts);
                 }
+
 
                 //add this message to the current ticket
                 $ticket->addMessage($message);
