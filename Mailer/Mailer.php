@@ -80,6 +80,13 @@ class Mailer
         /** @var TicketMessage $message */
         $message = $ticket->getMessages()->last();
 
+        //message with attachemnt ?
+        if ($message->getAttachmentFile() != null) {
+            $attachmentPath = $message->getAttachmentFile()->getRealPath();
+        } else {
+            $attachmentPath = false;
+        }
+
         /** @var UserManager $userManager */
         $userManager = $this->container->get('fos_user.user_manager');
         $users = $userManager->findUsers();
@@ -87,6 +94,7 @@ class Mailer
         // Prepare the recipients
         // At least the ticket's owner must receive the notification
         $recipients = array();
+        $recipientsBcc = array();
 
         if ($eventName != TicketEvents::TICKET_CREATE_FROM_MAIL && $eventName != TicketEvents::TICKET_UPDATE_FROM_MAIL) {
             //if it's not a ticket by mail, we can notify the user, if it's not the creator
@@ -106,7 +114,6 @@ class Mailer
                 $recipients[] = $mailTo;
             }
             //in the case of we have a reply_to or a from mail in the first message of the ticket, we use it to send a notification
-
         }
 
         // Add every user with the ROLE_TICKET_ADMIN role
@@ -119,11 +126,16 @@ class Mailer
             }
         }
 
-        //todo send to the admins in bcc insteal of recipient to hide the admin emails
+        //recipient could be false ?
+        if (false === $recipients) {
+            $recipients = $recipientsBcc;
+        }
         // Prepare email headers
-        $message = $this->prepareEmailMessage(
+        $mail = $this->prepareEmailMessage(
             $subject,
-            $recipients
+            $recipients,
+            $recipientsBcc,
+            $attachmentPath
         );
 
         // Prepare template args
@@ -133,14 +145,14 @@ class Mailer
 
         // Create the message body in HTML
         $format = 'text/html';
-        $this->addMessagePart($message, $templateHTML, $args, $format);
+        $this->addMessagePart($mail, $templateHTML, $args, $format);
 
         // Create the message body in plain text
         $format = 'text/plain';
-        $this->addMessagePart($message, $templateTxt, $args, $format);
+        $this->addMessagePart($mail, $templateTxt, $args, $format);
 
         // Finally send the message
-        $this->sendEmailMessage($message);
+        $this->sendEmailMessage($mail);
 
         return null;
     }
@@ -152,7 +164,7 @@ class Mailer
      * @param string $eventName
      * @return null
      */
-    public function sendTicketUserNotificationEmailMessage(TicketInterface $ticket, $eventName)
+    public function sendTicketUserNotificationEmailMessage(TicketInterface $ticket)
     {
         // Retrieve the creator
         /** @var User $creator */
@@ -176,10 +188,11 @@ class Mailer
 
         // Prepare the recipients
         // At least the ticket's owner must receive the notification
-        $recipients = array();
+        $recipients = false;
+        $recipientsBcc = false;
 
         if ($firstMessage->getUser() !== $creator->getId()) {
-            $recipients[] = $creator->getEmail();
+            $recipientsBcc[] = $creator->getEmail();
         } else {
             //we have to send to the emails collected in the first sended message from the user
             //replyTo or mailFrom = mailTo
@@ -195,11 +208,19 @@ class Mailer
             //if we dont have the reply_to or the from we do nothing
         }
 
-        // Prepare email headers
+        //we always send the messages to the user whe send the first email, and BCC to others
+        //recipient could be false ?
+        if (false === $recipients) {
+            $recipients = $recipientsBcc;
+        }
+
         $message = $this->prepareEmailMessage(
             $subject,
-            $recipients
+            $recipients,
+            $recipientsBcc
         );
+
+
 
         // Prepare template args
         $args = array(
@@ -225,18 +246,29 @@ class Mailer
      *
      * @param $subject
      * @param $to
+     * @param $bcc
+     *
      * @return \Swift_Mime_SimpleMessage
      */
-    private function prepareEmailMessage($subject, $to)
+    private function prepareEmailMessage($subject, $to, $bcc = false, $attachmentPath = false)
     {
-        // Prepare a confirmation e-mail
-        return \Swift_Message::newInstance()
+        $message = \Swift_Message::newInstance()
             ->setSubject($subject)
             ->setFrom(array(
                 $this->container->getParameter('hackzilla_ticket.notification.emails')['sender_email']
                 => $this->container->getParameter('hackzilla_ticket.notification.emails')['sender_name']
             ))
             ->setTo($to);
+
+        if (false !== $bcc) {
+            $message->setBcc($bcc);
+        }
+
+        if (false !== $attachmentPath) {
+            $message->attach(\Swift_Attachment::fromPath($attachmentPath));
+        }
+        // Prepare a confirmation e-mail
+        return $message;
     }
 
     /**
