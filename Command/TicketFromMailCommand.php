@@ -157,19 +157,19 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 $message->setReplyTo($mail->headers->reply_to[0]);
 
                 //add a listener to create users with minimal infos ? Sort of pre registration
-
                 $message->setUser($messageOwner);
 
                 $nbAttachment = count($mail->getAttachments());
 
                 //managing attachments
                 if (1 == $nbAttachment) {
-                    //we put it directly in the message
+                    //take the first and only element of the array
+                    $attachment = current($mail->getAttachments());
                     //set the attachment name
-                    $message->setAttachmentName($mail->getAttachments()[0]->name);
+                    $message->setAttachmentName($attachment->name);
                     //set the attachemnt file, vich require an UploadedFile object
                     //https://github.com/dustin10/VichUploaderBundle/blob/master/Resources/doc/known_issues.md#no-upload-is-triggered-when-manually-injecting-an-instance-of-symfonycomponenthttpfoundationfilefile
-                    $message->setAttachmentFile(new UploadedFile($mail->getAttachments()[0]->filePath, $mail->getAttachments()[0]->name, null, null, null, true));
+                    $message->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
                 } elseif ($nbAttachment > 1) {
                     //init the array
                     $newAttachemnts = [];
@@ -191,7 +191,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     }
                     //$message->setAttachments($newAttachemnts);
                 }
-
 
                 //add this message to the current ticket
                 $ticket->addMessage($message);
