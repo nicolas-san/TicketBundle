@@ -215,7 +215,7 @@ class TicketManager implements TicketManagerInterface
                     ->andWhere('t.userCreated = :userId')
                     ->setParameter('userId', $user->getId());
             }
-        } elseif (true === false) {
+        } elseif (! \is_object($user)) {
             // anonymous user
             $query
                 ->andWhere('t.userCreated = :userId')
