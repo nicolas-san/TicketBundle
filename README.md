@@ -68,7 +68,12 @@ hackzilla_ticket:
         show: 'YOURTicketBundle:Ticket:show.html.twig'
         show_attachment: 'YOURTicketBundle:Ticket:show_attachment.html.twig'
 ```
-
+## Options
+You can allow all users with the USER_TICKET_ADMIN role to see all tickets.
+```yaml
+hackzilla_ticket:
+  show_tickets_to_all_admin: true #default false
+```
 ## Migrate a Previous Version
 
 * [Information moved](Resources/doc/migrate/index.md)
