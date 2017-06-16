@@ -87,143 +87,143 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 $mail->headers->subject = imap_utf8($mail->headers->subject);
 
                 //temporary hotfix to avoid importing mailer error daemon
-                if ($mail->headers->subject == "Undelivered Mail Returned to Sender" or $mail->headers->from[0]->mailbox == "MAILER-DAEMON") {
-                    break;
-                }
+                if ($mail->headers->subject != "Undelivered Mail Returned to Sender" and $mail->headers->from[0]->mailbox != "MAILER-DAEMON") {
 
-                //replyTo or mailFrom = mailTo
-                if ($mail->headers->reply_to[0]) {
-                    $mailTo = $mail->headers->reply_to[0]->mailbox . "@" . $mail->headers->reply_to[0]->host;
-                } else {
-                    $mailTo = $mail->headers->from[0]->mailbox . "@" . $mail->headers->from[0]->host;
-                }
 
-                //check the mail subject (\[#[0-9]*[\]])
-                $result = preg_match('(\[#[0-9]*[\]])', $mail->headers->subject, $ticketRef);
-
-                //I find a ticket ref [#xxxx] in the subject, I have to extract the id, and verify if the ticket exists
-                if ($result > 0) {
-                    //search the ref
-                    preg_match('([#]\d*)', $ticketRef[0], $ticketId);
-                    //get the number
-                    $ticketId = explode('#', $ticketId[0]);
-                    //check if the ticket exists
-                    $ticket = $ticketManager->getTicketById($ticketId[1]);
-
-                    //todo: check and do something with $ticketError ? Could be hack attemps
-                    if (!$ticket) {
-                        $ticketIdError = true;
-                        $newTicket = true;
+                    //replyTo or mailFrom = mailTo
+                    if ($mail->headers->reply_to[0]) {
+                        $mailTo = $mail->headers->reply_to[0]->mailbox . "@" . $mail->headers->reply_to[0]->host;
                     } else {
-                        $ticketIdError = false;
-                        $newTicket = false;
+                        $mailTo = $mail->headers->from[0]->mailbox . "@" . $mail->headers->from[0]->host;
                     }
 
-                } else {
-                    $newTicket = true;
-                }
+                    //check the mail subject (\[#[0-9]*[\]])
+                    $result = preg_match('(\[#[0-9]*[\]])', $mail->headers->subject, $ticketRef);
 
-                //ticket user should be the user owner of the mail, if it's in the db, else we can use the owner
-                if ($messageOwner = $userManager->findUserBy(['email' => $mailTo])) {
-                    //do nothing because the assignation is done in the if condition, but good practice or not ?
-                } else {
-                    //reuse current owner of the ticket
-                    $messageOwner = $owner;
-                }
+                    //I find a ticket ref [#xxxx] in the subject, I have to extract the id, and verify if the ticket exists
+                    if ($result > 0) {
+                        //search the ref
+                        preg_match('([#]\d*)', $ticketRef[0], $ticketId);
+                        //get the number
+                        $ticketId = explode('#', $ticketId[0]);
+                        //check if the ticket exists
+                        $ticket = $ticketManager->getTicketById($ticketId[1]);
 
-                if ($newTicket) {
-                    $ticket = $ticketManager->createTicket();
-                    $ticket->setSubject($mail->headers->subject);
-                    //we need to link a message in the new ticket
-                    $message = $ticketManager->createMessage($ticket);
+                        //todo: check and do something with $ticketError ? Could be hack attemps
+                        if (!$ticket) {
+                            $ticketIdError = true;
+                            $newTicket = true;
+                        } else {
+                            $ticketIdError = false;
+                            $newTicket = false;
+                        }
 
-                    $ticket->setUserCreated($owner);
-                    $ticket->setLastUser($owner);
+                    } else {
+                        $newTicket = true;
+                    }
 
-                    $message->setStatus(TicketMessageInterface::STATUS_OPEN)
-                        ->setUser($messageOwner)
-                        ->setMailDate(new \DateTime($mail->headers->date));
+                    //ticket user should be the user owner of the mail, if it's in the db, else we can use the owner
+                    if ($messageOwner = $userManager->findUserBy(['email' => $mailTo])) {
+                        //do nothing because the assignation is done in the if condition, but good practice or not ?
+                    } else {
+                        //reuse current owner of the ticket
+                        $messageOwner = $owner;
+                    }
 
-                    //update the ticket once, to have a ticket ID if it's a new one, needed for the attachment
-                    $ticketManager->updateTicket($ticket, $message);
-                } else {
-                    $message = $ticketManager->createMessage($ticket);
-                }
+                    if ($newTicket) {
+                        $ticket = $ticketManager->createTicket();
+                        $ticket->setSubject($mail->headers->subject);
+                        //we need to link a message in the new ticket
+                        $message = $ticketManager->createMessage($ticket);
 
-                if ($mail->textPlain) {
-                    $message->setMessage(imap_utf8($mail->textPlain) . "\r\n" . "From: " . $mailTo);
-                } else {
-                    $message->setMessage(addslashes(strip_tags(imap_utf8($mail->textHtml)))  . "<br />" . "From: " . $mailTo);
-                }
-                $message->setMessagePlain(imap_utf8($mail->textPlain));
-                $message->setMessageHtml(imap_utf8($mail->textHtml));
-                $message->setHeaderRaw($mail->headersRaw);
-                $message->setFrom($mail->headers->from[0]);
-                $message->setReplyTo($mail->headers->reply_to[0]);
+                        $ticket->setUserCreated($owner);
+                        $ticket->setLastUser($owner);
 
-                //add a listener to create users with minimal infos ? Sort of pre registration
-                $message->setUser($messageOwner);
+                        $message->setStatus(TicketMessageInterface::STATUS_OPEN)
+                            ->setUser($messageOwner)
+                            ->setMailDate(new \DateTime($mail->headers->date));
 
-                $nbAttachment = count($mail->getAttachments());
+                        //update the ticket once, to have a ticket ID if it's a new one, needed for the attachment
+                        $ticketManager->updateTicket($ticket, $message);
+                    } else {
+                        $message = $ticketManager->createMessage($ticket);
+                    }
 
-                //managing attachments
-                if (1 == $nbAttachment) {
-                    //take the first and only element of the array
-                    $attachment = current($mail->getAttachments());
-                    //set the attachment name
-                    $message->setAttachmentName($attachment->name);
-                    //set the attachemnt file, vich require an UploadedFile object
-                    //https://github.com/dustin10/VichUploaderBundle/blob/master/Resources/doc/known_issues.md#no-upload-is-triggered-when-manually-injecting-an-instance-of-symfonycomponenthttpfoundationfilefile
-                    $message->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
-                } elseif ($nbAttachment > 1) {
-                    //init the array
-                    $newAttachemnts = [];
-                    foreach ($mail->getAttachments() as $attachment) {
-                        //create a new attachment entity
-                        $newAttachemnt = new TicketMessageAttachment();
-                        $newAttachemnt->setMessage($message);
+                    if ($mail->textPlain) {
+                        $message->setMessage(imap_utf8($mail->textPlain) . "\r\n" . "From: " . $mailTo);
+                    } else {
+                        $message->setMessage(addslashes(strip_tags(imap_utf8($mail->textHtml))) . "<br />" . "From: " . $mailTo);
+                    }
+                    $message->setMessagePlain(imap_utf8($mail->textPlain));
+                    $message->setMessageHtml(imap_utf8($mail->textHtml));
+                    $message->setHeaderRaw($mail->headersRaw);
+                    $message->setFrom($mail->headers->from[0]);
+                    $message->setReplyTo($mail->headers->reply_to[0]);
+
+                    //add a listener to create users with minimal infos ? Sort of pre registration
+                    $message->setUser($messageOwner);
+
+                    $nbAttachment = count($mail->getAttachments());
+
+                    //managing attachments
+                    if (1 == $nbAttachment) {
+                        //take the first and only element of the array
+                        $attachment = current($mail->getAttachments());
                         //set the attachment name
-                        $newAttachemnt->setAttachmentFilename($attachment->name);
+                        $message->setAttachmentName($attachment->name);
                         //set the attachemnt file, vich require an UploadedFile object
                         //https://github.com/dustin10/VichUploaderBundle/blob/master/Resources/doc/known_issues.md#no-upload-is-triggered-when-manually-injecting-an-instance-of-symfonycomponenthttpfoundationfilefile
-                        $newAttachemnt->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
+                        $message->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
+                    } elseif ($nbAttachment > 1) {
+                        //init the array
+                        $newAttachemnts = [];
+                        foreach ($mail->getAttachments() as $attachment) {
+                            //create a new attachment entity
+                            $newAttachemnt = new TicketMessageAttachment();
+                            $newAttachemnt->setMessage($message);
+                            //set the attachment name
+                            $newAttachemnt->setAttachmentFilename($attachment->name);
+                            //set the attachemnt file, vich require an UploadedFile object
+                            //https://github.com/dustin10/VichUploaderBundle/blob/master/Resources/doc/known_issues.md#no-upload-is-triggered-when-manually-injecting-an-instance-of-symfonycomponenthttpfoundationfilefile
+                            $newAttachemnt->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
 
-                        $em->persist($newAttachemnt);
-                        //todo optimize here to do the flush outside the loop
-                        $em->flush();
+                            $em->persist($newAttachemnt);
+                            //todo optimize here to do the flush outside the loop
+                            $em->flush();
 
-                        $newAttachemnts[] = $newAttachemnt;
+                            $newAttachemnts[] = $newAttachemnt;
+                        }
+                        //$message->setAttachments($newAttachemnts);
                     }
-                    //$message->setAttachments($newAttachemnts);
-                }
 
-                //add this message to the current ticket
-                $ticket->addMessage($message);
-
-                $ticketManager->updateTicket($ticket, $message);
-
-                try {
-                    $ticketManager->updateTicket($ticket, $message);
-                } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException $fileException) {
-                    //delete attachment and save again
-                    $message->setAttachmentName(null);
-                    $message->setAttachmentFile(null);
-
-                    //add in the message body an info about the attachment failure
-                    $message->setMessagePlain($message->getMessagePlain() . "\r\n This message add an invalid attachment file, the system ignore it");
-                    $message->setMessageHtml($message->getMessageHtml() . "\r\n This message add an invalid attachment file, the system ignore it" );
+                    //add this message to the current ticket
+                    $ticket->addMessage($message);
 
                     $ticketManager->updateTicket($ticket, $message);
-                }
 
-                if ($newTicket) {
-                    $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE_FROM_MAIL, new TicketEvent($ticket));
-                } else {
-                    $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_UPDATE, new TicketEvent($ticket));
-                }
+                    try {
+                        $ticketManager->updateTicket($ticket, $message);
+                    } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException $fileException) {
+                        //delete attachment and save again
+                        $message->setAttachmentName(null);
+                        $message->setAttachmentFile(null);
 
-                //mark this mail for deletion
-                $mailbox->deleteMail($mailsId);
+                        //add in the message body an info about the attachment failure
+                        $message->setMessagePlain($message->getMessagePlain() . "\r\n This message add an invalid attachment file, the system ignore it");
+                        $message->setMessageHtml($message->getMessageHtml() . "\r\n This message add an invalid attachment file, the system ignore it");
+
+                        $ticketManager->updateTicket($ticket, $message);
+                    }
+
+                    if ($newTicket) {
+                        $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_CREATE_FROM_MAIL, new TicketEvent($ticket));
+                    } else {
+                        $this->getContainer()->get('event_dispatcher')->dispatch(TicketEvents::TICKET_UPDATE, new TicketEvent($ticket));
+                    }
+
+                    //mark this mail for deletion
+                    $mailbox->deleteMail($mailsId);
+                }
 
             } //end of for each loop on mails
 
