@@ -98,17 +98,17 @@ class Mailer
 
         if ($eventName != TicketEvents::TICKET_CREATE_FROM_MAIL && $eventName != TicketEvents::TICKET_UPDATE_FROM_MAIL) {
             //if it's not a ticket by mail, we can notify the user, if it's not the creator
-            if ($message->getUser() !== $creator->getId()) {
+            if ($message->getUser() !== $creator->getId() and ('noreply' != $creator->getEmail() or 'no-reply' != $creator->getEmail())) {
                 $recipients[] = $creator->getEmail();
             }
             $firstMessage = $ticket->getMessages()->first();
             //we have to send to the emails collected in the first sended message from the user
             //replyTo or mailFrom = mailTo
-            if ($firstMessage->getReplyTo()) {
+            if ($firstMessage->getReplyTo() and ('noreply' != $firstMessage->getReplyTo()->mailbox or 'no-reply' != $firstMessage->getReplyTo()->mailbox)) {
                 $mailTo = $firstMessage->getReplyTo()->mailbox . "@" . $firstMessage->getReplyTo()->host;
                 //add the user to the recipients list
                 $recipientsBcc[] = $mailTo;
-            } elseif ($firstMessage->getFrom()) {
+            } elseif ($firstMessage->getFrom() and ('noreply' != $firstMessage->getFrom()->mailbox or 'no-reply' != $firstMessage->getFrom()->mailbox)) {
                 $mailTo = $firstMessage->getFrom()->mailbox . "@" . $firstMessage->getFrom()->host;
                 //add the user to the recipients list
                 $recipientsBcc[] = $mailTo;
@@ -127,7 +127,10 @@ class Mailer
         }
 
         //recipient could be false ?
-        if (false === $recipients) {
+        if (false === $recipients && false === $recipientsBcc) {
+            return -1;
+        }
+        elseif (false === $recipients) {
             $recipients = $recipientsBcc;
         }
         // Prepare email headers
@@ -191,16 +194,16 @@ class Mailer
         $recipients = false;
         $recipientsBcc = false;
 
-        if ($firstMessage->getUser() !== $creator->getId()) {
+        if ($firstMessage->getUser() !== $creator->getId() and ('noreply' != $creator->getEmail() or 'no-reply' != $creator->getEmail()) ) {
             $recipientsBcc[] = $creator->getEmail();
         } else {
             //we have to send to the emails collected in the first sended message from the user
             //replyTo or mailFrom = mailTo
-            if ($firstMessage->getReplyTo()) {
+            if ($firstMessage->getReplyTo() and ('noreply' != $firstMessage->getReplyTo()->mailbox or 'no-reply' != $firstMessage->getReplyTo()->mailbox) ) {
                 $mailTo = $firstMessage->getReplyTo()->mailbox . "@" . $firstMessage->getReplyTo()->host;
                 //add the user to the recipients list
                 $recipients[] = $mailTo;
-            } elseif ($firstMessage->getFrom()) {
+            } elseif ($firstMessage->getFrom() and ('noreply' != $firstMessage->getFrom()->mailbox or 'no-reply' != $firstMessage->getFrom()->mailbox) ) {
                 $mailTo = $firstMessage->getFrom()->mailbox . "@" . $firstMessage->getFrom()->host;
                 //add the user to the recipients list
                 $recipients[] = $mailTo;
@@ -210,7 +213,10 @@ class Mailer
 
         //we always send the messages to the user whe send the first email, and BCC to others
         //recipient could be false ?
-        if (false === $recipients) {
+        if (false === $recipients && false === $recipientsBcc) {
+            return -1;
+        }
+        elseif (false === $recipients) {
             $recipients = $recipientsBcc;
         }
 

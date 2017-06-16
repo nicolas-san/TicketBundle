@@ -35,19 +35,20 @@ class TicketController extends Controller
         $ticketManager = $this->get('hackzilla_ticket.ticket_manager');
         $ticketFeature = $this->get('hackzilla_ticket.features');
 
-        //run only if the ticket from mail feature is enabled
-        //todo: add parameter to not do this if you use cron + console command instead
-        //it's better to refactor console command to not use console command in controller, but to bvoid code duplication, better way should be to create a service, and use it both in here and the console command ?
-        if($ticketFeature->hasFeature('from_mail')) {
-            $kernel = $this->get('kernel');
-            $application = new Application($kernel);
-            $application->setAutoExit(false);
-            $input = new ArrayInput(array(
-                'command' => 'ticket:create_from_mail'
-            ));
-            //no need of output here
-            $output = new NullOutput();
-            $application->run($input, $output);
+        //use at your own risks, cron to the command is better, todo: move this to a special action to force mail retrieving
+        if (true === $this->container->getParameter('hackzilla_ticket.check_email_from_controller')) {
+            //it's better to refactor console command to not use console command in controller, but to bvoid code duplication, better way should be to create a service, and use it both in here and the console command ?
+            if ($ticketFeature->hasFeature('from_mail')) {
+                $kernel = $this->get('kernel');
+                $application = new Application($kernel);
+                $application->setAutoExit(false);
+                $input = new ArrayInput(array(
+                    'command' => 'ticket:create_from_mail'
+                ));
+                //no need of output here
+                $output = new NullOutput();
+                $application->run($input, $output);
+            }
         }
 
         //sure tickets are saved before the page is displayed ?
@@ -72,11 +73,15 @@ class TicketController extends Controller
             );
         }
 
-        //todo: make parameter for paginator
+        //configuration for ticket limit per page
+        $ticketLimit = $this->container->getParameter('hackzilla_ticket.ticket_per_page');
+        if (!$ticketLimit or $ticketLimit < 1) {
+            $ticketLimit = 10;
+        }
         $pagination = $this->get('knp_paginator')->paginate(
             $query->getQuery(),
             $request->query->get('page', 1)/*page number*/,
-            10/*limit per page*/
+            $ticketLimit
         );
 
         return $this->render(

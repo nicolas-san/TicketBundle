@@ -50,6 +50,7 @@ class TicketFromMailCommand extends ContainerAwareCommand
             $noValidateCert = '';
         }
 
+        imap_timeout(20);
         $mailbox = new \PhpImap\Mailbox('{' . $this->getContainer()->getParameter('hackzilla_ticket.from_mail')['imap_server_address'] . ':' . $this->getContainer()->getParameter('hackzilla_ticket.from_mail')['imap_server_port'] . '/imap/ssl' . $noValidateCert . '}INBOX', $this->getContainer()->getParameter('hackzilla_ticket.from_mail')['imap_login'], $this->getContainer()->getParameter('hackzilla_ticket.from_mail')['imap_pwd'], $this->getContainer()->getParameter('vich_uploader.mappings')['ticket_message_attachment']['upload_destination']);
 
         // Read all messaged into an array:
@@ -88,7 +89,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
 
                 //temporary hotfix to avoid importing mailer error daemon
                 if ($mail->headers->subject != "Undelivered Mail Returned to Sender" and $mail->headers->from[0]->mailbox != "MAILER-DAEMON") {
-
 
                     //replyTo or mailFrom = mailTo
                     if ($mail->headers->reply_to[0]) {
