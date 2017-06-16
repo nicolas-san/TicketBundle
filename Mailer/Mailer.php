@@ -95,23 +95,28 @@ class Mailer
         // At least the ticket's owner must receive the notification
         $recipients = array();
         $recipientsBcc = array();
+        $mailsNotAllowed = $this->container->getParameter('hackzilla_ticket.from_mail')['mails_out_not_allowed'];
 
         if ($eventName != TicketEvents::TICKET_CREATE_FROM_MAIL && $eventName != TicketEvents::TICKET_UPDATE_FROM_MAIL) {
             //if it's not a ticket by mail, we can notify the user, if it's not the creator
-            if ($message->getUser() !== $creator->getId() and ('noreply' != $creator->getEmail() or 'no-reply' != $creator->getEmail())) {
+            if ($message->getUser() !== $creator->getId() and false === in_array($creator->getEmail(), $mailsNotAllowed )) {
                 $recipients[] = $creator->getEmail();
             }
             $firstMessage = $ticket->getMessages()->first();
             //we have to send to the emails collected in the first sended message from the user
             //replyTo or mailFrom = mailTo
-            if ($firstMessage->getReplyTo() and ('noreply' != $firstMessage->getReplyTo()->mailbox or 'no-reply' != $firstMessage->getReplyTo()->mailbox)) {
+            if ($firstMessage->getReplyTo()) {
                 $mailTo = $firstMessage->getReplyTo()->mailbox . "@" . $firstMessage->getReplyTo()->host;
                 //add the user to the recipients list
-                $recipientsBcc[] = $mailTo;
-            } elseif ($firstMessage->getFrom() and ('noreply' != $firstMessage->getFrom()->mailbox or 'no-reply' != $firstMessage->getFrom()->mailbox)) {
+                if (!in_array($mailTo, $mailsNotAllowed)) {
+                    $recipientsBcc[] = $mailTo;
+                }
+            } elseif ($firstMessage->getFrom()) {
                 $mailTo = $firstMessage->getFrom()->mailbox . "@" . $firstMessage->getFrom()->host;
                 //add the user to the recipients list
-                $recipientsBcc[] = $mailTo;
+                if (!in_array($mailTo, $mailsNotAllowed)) {
+                    $recipientsBcc[] = $mailTo;
+                }
             }
             //in the case of we have a reply_to or a from mail in the first message of the ticket, we use it to send a notification
         }
@@ -194,7 +199,9 @@ class Mailer
         $recipients = false;
         $recipientsBcc = false;
 
-        if ($firstMessage->getUser() !== $creator->getId() and ('noreply' != $creator->getEmail() or 'no-reply' != $creator->getEmail()) ) {
+        $mailsNotAllowed = $this->container->getParameter('hackzilla_ticket.from_mail')['mails_out_not_allowed'];
+
+        if ($firstMessage->getUser() !== $creator->getId() and false === in_array($creator->getEmail(), $mailsNotAllowed ) ) {
             $recipientsBcc[] = $creator->getEmail();
         } else {
             //we have to send to the emails collected in the first sended message from the user
@@ -202,11 +209,15 @@ class Mailer
             if ($firstMessage->getReplyTo() and ('noreply' != $firstMessage->getReplyTo()->mailbox or 'no-reply' != $firstMessage->getReplyTo()->mailbox) ) {
                 $mailTo = $firstMessage->getReplyTo()->mailbox . "@" . $firstMessage->getReplyTo()->host;
                 //add the user to the recipients list
-                $recipients[] = $mailTo;
+                if (!in_array($mailTo, $mailsNotAllowed)) {
+                    $recipients[] = $mailTo;
+                }
             } elseif ($firstMessage->getFrom() and ('noreply' != $firstMessage->getFrom()->mailbox or 'no-reply' != $firstMessage->getFrom()->mailbox) ) {
                 $mailTo = $firstMessage->getFrom()->mailbox . "@" . $firstMessage->getFrom()->host;
                 //add the user to the recipients list
-                $recipients[] = $mailTo;
+                if (!in_array($mailTo, $mailsNotAllowed)) {
+                    $recipients[] = $mailTo;
+                }
             }
             //if we dont have the reply_to or the from we do nothing
         }
