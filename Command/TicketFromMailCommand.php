@@ -86,6 +86,11 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 //resolv utf8 issues
                 $mail->headers->subject = imap_utf8($mail->headers->subject);
 
+                //temporary hotfix to avoid importing mailer error daemon
+                if ($mail->headers->subject == "Undelivered Mail Returned to Sender" or $mail->headers->from[0]->mailbox == "postmaster") {
+                    break;
+                }
+
                 //replyTo or mailFrom = mailTo
                 if ($mail->headers->reply_to[0]) {
                     $mailTo = $mail->headers->reply_to[0]->mailbox . "@" . $mail->headers->reply_to[0]->host;
@@ -146,12 +151,12 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 }
 
                 if ($mail->textPlain) {
-                    $message->setMessage($mail->textPlain . "\r\n" . "From: " . $mailTo);
+                    $message->setMessage(imap_utf8($mail->textPlain) . "\r\n" . "From: " . $mailTo);
                 } else {
-                    $message->setMessage(addslashes(strip_tags($mail->textHtml))  . "<br />" . "From: " . $mailTo);
+                    $message->setMessage(addslashes(strip_tags(imap_utf8($mail->textHtml)))  . "<br />" . "From: " . $mailTo);
                 }
-                $message->setMessagePlain($mail->textPlain);
-                $message->setMessageHtml($mail->textHtml);
+                $message->setMessagePlain(imap_utf8($mail->textPlain));
+                $message->setMessageHtml(imap_utf8($mail->textHtml));
                 $message->setHeaderRaw($mail->headersRaw);
                 $message->setFrom($mail->headers->from[0]);
                 $message->setReplyTo($mail->headers->reply_to[0]);
