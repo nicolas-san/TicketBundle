@@ -35,8 +35,8 @@ class TicketController extends Controller
         $ticketManager = $this->get('hackzilla_ticket.ticket_manager');
         $ticketFeature = $this->get('hackzilla_ticket.features');
 
-        //use at your own risks, cron to the command is better, todo: move this to a special action to force mail retrieving
-        if (true === $this->container->getParameter('hackzilla_ticket.from_mail.check_email_from_controller')) {
+        //todo: duplicate this to a special action to force mail retrieving
+        if (true === $this->container->getParameter('hackzilla_ticket.from_mail')['check_email_from_controller']) {
             //it's better to refactor console command to not use console command in controller, but to bvoid code duplication, better way should be to create a service, and use it both in here and the console command ?
             if ($ticketFeature->hasFeature('from_mail')) {
                 $kernel = $this->get('kernel');

@@ -23,7 +23,7 @@ class Configuration implements ConfigurationInterface
         $treeBuilder->root('hackzilla_ticket')
             ->children()
                 ->booleanNode('show_tickets_to_all_admin')->defaultFalse()->end()
-                ->booleanNode('ticket_per_page')->end()
+                ->booleanNode('ticket_per_page')->defaultValue(10)->end()
                 ->scalarNode('user_class')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('ticket_class')->cannotBeEmpty()->defaultValue('Hackzilla\Bundle\TicketBundle\Entity\Ticket')->end()
                 ->scalarNode('message_class')->cannotBeEmpty()->defaultValue('Hackzilla\Bundle\TicketBundle\Entity\TicketMessage')->end()
