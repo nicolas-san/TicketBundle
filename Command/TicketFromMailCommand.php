@@ -87,7 +87,7 @@ class TicketFromMailCommand extends ContainerAwareCommand
                 $mail->headers->subject = imap_utf8($mail->headers->subject);
 
                 //temporary hotfix to avoid importing mailer error daemon
-                if ($mail->headers->subject == "Undelivered Mail Returned to Sender" or $mail->headers->from[0]->mailbox == "postmaster") {
+                if ($mail->headers->subject == "Undelivered Mail Returned to Sender" or $mail->headers->from[0]->mailbox == "MAILER-DAEMON") {
                     break;
                 }
 
