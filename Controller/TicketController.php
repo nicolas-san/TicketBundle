@@ -76,7 +76,7 @@ class TicketController extends Controller
         $pagination = $this->get('knp_paginator')->paginate(
             $query->getQuery(),
             $request->query->get('page', 1)/*page number*/,
-            $this->container->getParameter('hackzilla_ticket.ticket_per_page')
+            $this->container->getParameter('hackzilla_ticket.ticket_per_page') //todo check security/stability issue, be sure it's an int
         );
 
         return $this->render(
