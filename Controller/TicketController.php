@@ -73,15 +73,10 @@ class TicketController extends Controller
             );
         }
 
-        //configuration for ticket limit per page
-        $ticketLimit = $this->container->getParameter('hackzilla_ticket.ticket_per_page');
-        if (!$ticketLimit or $ticketLimit < 1) {
-            $ticketLimit = 10;
-        }
         $pagination = $this->get('knp_paginator')->paginate(
             $query->getQuery(),
             $request->query->get('page', 1)/*page number*/,
-            $ticketLimit
+            $this->container->getParameter('hackzilla_ticket.ticket_per_page')
         );
 
         return $this->render(
