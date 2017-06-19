@@ -62,7 +62,6 @@
                 <td>{% if entity.lastMessage %}{{ entity.lastMessage|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
                 <td>{% if entity.createdAt %}{{ entity.createdAt|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
                 {% if delete_form is defined %}<td>
-
                     {{ form_start(delete_form, {'method': 'POST', 'action': path('hackzilla_ticket_delete', {'ticketId': entity.id}), 'attr': {'class': 'text-right'}}) }}
                     <input type="hidden" name="_method" value="DELETE"/>
                     {{ form_widget(delete_form) }}
