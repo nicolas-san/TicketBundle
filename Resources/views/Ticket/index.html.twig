@@ -60,7 +60,7 @@
                 <td>{{ macros.status_btn(entity.status, entity.statusString|trans, true) }}</td>
                 <td>{{ macros.priority_btn(entity.priority, entity.priorityString|trans, true) }}</td>
                 <td>{% if entity.lastMessage %}{{ entity.lastMessage|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
-                <td>{% ifentity.createdAt %}{{ entity.createdAt|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
+                <td>{% if entity.createdAt %}{{ entity.createdAt|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
                 {% if delete_form is defined %}<td>
 
                     {{ form_start(delete_form, {'method': 'POST', 'action': path('hackzilla_ticket_delete', {'ticketId': entity.id}), 'attr': {'class': 'text-right'}}) }}
