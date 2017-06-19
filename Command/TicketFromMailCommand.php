@@ -60,7 +60,7 @@ class TicketFromMailCommand extends ContainerAwareCommand
             //do nothing, but display a message ?
         } else {
 
-            //we search for a system user, or a ticket_system user, or the first user with the TICKET_ADMIN_ROLE
+            //we search for a system user, or a ticket_system user, or the first user with the TICKET_ADMIN_ROLE, if we don't have a user corresponding to the from email, we use this one
             $owner = $userManager->findUserByUsername('system');
             if (!$owner) {
                 $owner = $userManager->findUserByUsername('ticket_system');
@@ -123,7 +123,7 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     }
 
                     //ticket user should be the user owner of the mail, if it's in the db, else we can use the owner
-                    if ($messageOwner = $userManager->findUserBy(['email' => $mailTo])) {
+                    if ($messageOwner = $userManager->findUserByEmail($mailTo)) {
                         //do nothing because the assignation is done in the if condition, but good practice or not ?
                     } else {
                         //reuse current owner of the ticket
@@ -136,8 +136,8 @@ class TicketFromMailCommand extends ContainerAwareCommand
                         //we need to link a message in the new ticket
                         $message = $ticketManager->createMessage($ticket);
 
-                        $ticket->setUserCreated($owner);
-                        $ticket->setLastUser($owner);
+                        $ticket->setUserCreated($messageOwner);
+                        $ticket->setLastUser($messageOwner);
 
                         $message->setStatus(TicketMessageInterface::STATUS_OPEN)
                             ->setUser($messageOwner)

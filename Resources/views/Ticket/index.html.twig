@@ -46,6 +46,7 @@
             <th{% if pagination.isSorted('t.priority') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'HEADING_PRIORITY'|trans, 't.priority') }}</th>
             <th{% if pagination.isSorted('t.modified') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'HEADING_MODIFIED'|trans, 't.lastMessage') }}</th>
             <th{% if pagination.isSorted('t.created') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'HEADING_CREATED'|trans, 't.createdAt') }}</th>
+            <th>{{ 'BUTTON_DELETE'|trans }}</th>
         </tr>
         </thead>
         <tbody>
@@ -58,6 +59,14 @@
                 <td>{{ macros.priority_btn(entity.priority, entity.priorityString|trans, true) }}</td>
                 <td>{% if entity.lastMessage %}{{ entity.lastMessage|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
                 <td>{% if entity.createdAt %}{{ entity.createdAt|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
+                <td>
+                    {{ form_start(delete_form, {'method': 'POST', 'action': path('hackzilla_ticket_delete', {'ticketId': entity.id}), 'attr': {'class': 'text-right'}}) }}
+                    <input type="hidden" name="_method" value="DELETE"/>
+                    {{ form_widget(delete_form) }}
+
+                    <button type="submit" class="btn btn-sm btn-danger">{{ 'BUTTON_DELETE'|trans }}</button>
+                    {{ form_end(delete_form) }}
+                </td>
             </tr>
         {% else %}
             <tr>

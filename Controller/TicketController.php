@@ -73,6 +73,12 @@ class TicketController extends Controller
             );
         }
 
+        $deleteForm = false; //default value
+        if (true === $this->container->getParameter('hackzilla_ticket.model.allow.reopenning.ticket')) {
+            if ($this->getUserManager()->hasRole($userManager->getCurrentUser(), TicketRole::ADMIN)) {
+                $deleteForm = $this->createDeleteForm(0)->createView();
+            }
+        }
         $pagination = $this->get('knp_paginator')->paginate(
             $query->getQuery(),
             $request->query->get('page', 1)/*page number*/,
@@ -85,6 +91,7 @@ class TicketController extends Controller
                 'pagination'     => $pagination,
                 'ticketState'    => $ticketState,
                 'ticketPriority' => $ticketPriority,
+                'delete_form'    => $deleteForm
             ]
         );
     }
@@ -166,8 +173,8 @@ class TicketController extends Controller
 
         $message = $ticketManager->createMessage($ticket);
 
-        if (TicketMessageInterface::STATUS_CLOSED != $ticket->getStatus()) {
-            $data['form'] = $this->createMessageForm($message)->createView();
+        if (true === $this->container->getParameter('hackzilla_ticket.model.allow.reopenning.ticket') or TicketMessageInterface::STATUS_CLOSED != $ticket->getStatus()) {
+                $data['form'] = $this->createMessageForm($message)->createView();
         }
 
         if ($currentUser && $this->getUserManager()->hasRole($currentUser, TicketRole::ADMIN)) {
