@@ -53,6 +53,8 @@ class TicketController extends Controller
 
         //sure tickets are saved before the page is displayed ?
         $ticketState = $request->get('state', $this->get('translator')->trans('STATUS_OPEN'));
+
+
         $ticketPriority = $request->get('priority', null);
 
         if (true === $this->container->getParameter('hackzilla_ticket.model.show.ticket.to.all.admin')) {
@@ -73,10 +75,14 @@ class TicketController extends Controller
             );
         }
 
+        //get the tickects, and generate one form delet per ticket
         $deleteForm = false; //default value
-        if (true === $this->container->getParameter('hackzilla_ticket.model.allow.reopenning.ticket')) {
-            if ($this->getUserManager()->hasRole($userManager->getCurrentUser(), TicketRole::ADMIN)) {
-                $deleteForm = $this->createDeleteForm(0)->createView();
+        if (true === $this->container->getParameter('hackzilla_ticket.model.allow.reopenning.ticket') && $this->getUserManager()->hasRole($userManager->getCurrentUser(), TicketRole::ADMIN)) {
+            //need to count to have one delet form by ticket, todo: search if it's the better way to do that
+            $count = count($query->getQuery()->getScalarResult());
+            //we can create directly the form with the good ticket ID or let twig handle, the better way is ?
+            for ($i = 0; $i < $count; $i++) {
+                $deleteForm[] = $this->createDeleteForm(0)->createView();
             }
         }
         $pagination = $this->get('knp_paginator')->paginate(

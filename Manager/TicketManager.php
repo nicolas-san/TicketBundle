@@ -193,12 +193,16 @@ class TicketManager implements TicketManagerInterface
                     ->andWhere('t.status = :status')
                     ->setParameter('status', TicketMessageInterface::STATUS_CLOSED);
                 break;
-
-            case TicketMessage::STATUS_OPEN:
+            default:
+                $query
+                    ->andWhere('t.status = :status')
+                    ->setParameter('status', $ticketStatus);
+                break;
+            /*case TicketMessage::STATUS_OPEN:
             default:
                 $query
                     ->andWhere('t.status != :status')
-                    ->setParameter('status', TicketMessageInterface::STATUS_CLOSED);
+                    ->setParameter('status', TicketMessageInterface::STATUS_CLOSED);*/
         }
 
         if ($ticketPriority) {

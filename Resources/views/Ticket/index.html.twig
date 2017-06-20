@@ -4,13 +4,30 @@
 {% block hackzilla_ticket_content -%}
     <h1>{{ 'HEADING_TICKET_LIST'|trans }}</h1>
 
-    <div class="row">
-        <div class="col-xs-4">
+    <div class="row" style="margin-bottom: 3px;">
+        <div class="col-xs-6">
             <div class="btn-group">
                 <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_OPEN'|trans}) }}"
-                   class="btn btn-default {{ ticketState != 'STATUS_CLOSED'|trans ? 'active' : '' }}">{{ 'STATUS_OPEN'|trans|upper }}</a>
+                   class="btn btn-warning {{ ticketState != 'STATUS_CLOSED'|trans ? 'active' : '' }}">{{ 'STATUS_OPEN'|trans|upper }}
+                </a>
                 <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_CLOSED'|trans}) }}"
-                   class="btn btn-default {{ ticketState == 'STATUS_CLOSED'|trans ? 'active' : '' }}">{{ 'STATUS_CLOSED'|trans|upper }}</a>
+                   class="btn btn-danger {{ ticketState == 'STATUS_CLOSED'|trans ? 'active' : '' }}">{{ 'STATUS_CLOSED'|trans|upper }}
+                </a>
+                <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_IN_PROGRESS'|trans}) }}"
+                   class="btn btn-info {{ ticketState == 'STATUS_IN_PROGRESS'|trans ? 'active' : '' }}">{{ 'STATUS_IN_PROGRESS'|trans|upper }}
+                </a>
+                <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_INFORMATION_REQUESTED'|trans}) }}"
+                   class="btn btn-info {{ ticketState == 'STATUS_INFORMATION_REQUESTED'|trans ? 'active' : '' }}">{{ 'STATUS_INFORMATION_REQUESTED'|trans|upper }}
+                </a>
+                <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_ON_HOLD'|trans}) }}"
+                   class="btn btn-info {{ ticketState == 'STATUS_ON_HOLD'|trans ? 'active' : '' }}">{{ 'STATUS_ON_HOLD'|trans|upper }}
+                </a>
+                <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_RESOLVED'|trans}) }}"
+                   class="btn btn-success {{ ticketState == 'STATUS_RESOLVED'|trans ? 'active' : '' }}">{{ 'STATUS_RESOLVED'|trans|upper }}
+                </a>
+                <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_INVALID'|trans}) }}"
+                   class="btn btn-default {{ ticketState == 'STATUS_INVALID'|trans ? 'active' : '' }}">{{ 'STATUS_INVALID'|trans|upper }}
+                </a>
             </div>
         </div>
 
@@ -28,7 +45,7 @@
             </div>
         </div>
 
-        <div class="col-xs-4 text-right">
+        <div class="col-xs-2 text-right">
             <div class="btn-group">
                 <a href="{{ path('hackzilla_ticket_new') }}" class="btn btn-primary"><span
                             class="glyphicon glyphicon-plus"></span> {{ 'BUTTON_NEW'|trans }}</a>
@@ -52,7 +69,10 @@
         </tr>
         </thead>
         <tbody>
+
+        {% set counter = 0 %}
         {% for entity in pagination %}
+
             <tr>
                 <td><a href="{{ path('hackzilla_ticket_show', { 'ticketId': entity.id }) }}">{{ entity.id }}</a></td>
                 <td><a href="{{ path('hackzilla_ticket_show', { 'ticketId': entity.id }) }}">{{ entity.subject }}</a></td>
@@ -62,15 +82,16 @@
                 <td>{% if entity.lastMessage %}{{ entity.lastMessage|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
                 <td>{% if entity.createdAt %}{{ entity.createdAt|date('LABEL_DATE_TIME_FORMAT'|trans) }}{% endif %}</td>
                 {% if delete_form is defined %}<td>
-                    {{ form_start(delete_form, {'method': 'POST', 'action': path('hackzilla_ticket_delete', {'ticketId': entity.id}), 'attr': {'class': 'text-right'}}) }}
+                    {{ form_start(delete_form[counter], {'method': 'POST', 'action': path('hackzilla_ticket_delete', {'ticketId': entity.id}), 'attr': {'class': 'text-right'}}) }}
                     <input type="hidden" name="_method" value="DELETE"/>
-                    {{ form_widget(delete_form) }}
+                    {{ form_widget(delete_form[counter]) }}
 
                     <button type="submit" class="btn btn-sm btn-danger">{{ 'BUTTON_DELETE'|trans }}</button>
-                    {{ form_end(delete_form) }}
+                    {{ form_end(delete_form[counter]) }}
                 </td>
                 {% endif %}
             </tr>
+            {% set counter = counter + 1 %}
         {% else %}
             <tr>
                 <td colspan="7">{{ 'MESSAGE_NO_TICKETS'|trans }}.</td>
