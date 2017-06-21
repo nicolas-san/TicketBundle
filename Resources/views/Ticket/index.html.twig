@@ -22,9 +22,6 @@
                 <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_RESOLVED'|trans}) }}"
                    class="btn btn-success {{ ticketState == 'STATUS_RESOLVED'|trans ? 'active' : '' }}">{{ 'STATUS_RESOLVED'|trans|upper }}
                 </a>
-                <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_INVALID'|trans}) }}"
-                   class="btn btn-default {{ ticketState == 'STATUS_INVALID'|trans ? 'active' : '' }}">{{ 'STATUS_INVALID'|trans|upper }}
-                </a>
                 <a href="{{ path('hackzilla_ticket', {'state': 'STATUS_CLOSED'|trans}) }}"
                    class="btn btn-danger {{ ticketState == 'STATUS_CLOSED'|trans ? 'active' : '' }}">{{ 'STATUS_CLOSED'|trans|upper }}
                 </a>
