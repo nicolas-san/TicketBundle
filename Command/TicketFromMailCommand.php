@@ -152,10 +152,10 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     if ($mail->textPlain) {
                         $message->setMessage(imap_utf8($mail->textPlain) . "\r\n" . "From: " . $mailTo);
                     } else {
-                        $message->setMessage(addslashes(strip_tags(imap_utf8($mail->textHtml))) . "<br />" . "From: " . $mailTo);
+                        $message->setMessage(strip_tags(htmlspecialchars(imap_utf8($mail->textHtml))) . "<br />" . "From: " . $mailTo);
                     }
-                    $message->setMessagePlain(imap_utf8($mail->textPlain));
-                    $message->setMessageHtml(imap_utf8($mail->textHtml));
+                    $message->setMessagePlain(strip_tags(htmlspecialchars(imap_utf8($mail->textPlain))));
+                    $message->setMessageHtml(htmlspecialchars(imap_utf8($mail->textHtml)));
                     $message->setHeaderRaw($mail->headersRaw);
                     $message->setFrom($mail->headers->from[0]);
                     $message->setReplyTo($mail->headers->reply_to[0]);
