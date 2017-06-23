@@ -57,22 +57,26 @@ class TicketSubscriber implements EventSubscriberInterface
         $ticketFeature = $this->container->get('hackzilla_ticket.features');
         $mailer = false;
 
-        if ($ticketFeature->hasFeature('notification')) {
-            $mailer = $this->container->get('hackzilla_ticket.notification.mailer');
-            /** @var Mailer $mailer */
-            $mailer->sendTicketNotificationEmailMessage($event->getTicket(), $eventName);
-        }
-        //if the ticket from mail feature is activated we send a mail to the user
-        //if it's a new ticket from mail
-        if (TicketEvents::TICKET_CREATE_FROM_MAIL == $eventName) {
-            //no need to test if the feature is enabled, if not this event never occurs
-            if (!$mailer) {
-                //get the mailer, is it better to get the mailer outside the ifs, all the time instead of doing $mailer = false, and this if ?
+        if ($event->getTicket()->getLastMessage() != null) {
+
+            if ($ticketFeature->hasFeature('notification')) {
                 $mailer = $this->container->get('hackzilla_ticket.notification.mailer');
+                /** @var Mailer $mailer */
+                $mailer->sendTicketNotificationEmailMessage($event->getTicket(), $eventName);
+            }
+            //if the ticket from mail feature is activated we send a mail to the user
+            //if it's a new ticket from mail
+            if (TicketEvents::TICKET_CREATE_FROM_MAIL == $eventName) {
+                //no need to test if the feature is enabled, if not this event never occurs
+                if (!$mailer) {
+                    //get the mailer, is it better to get the mailer outside the ifs, all the time instead of doing $mailer = false, and this if ?
+                    $mailer = $this->container->get('hackzilla_ticket.notification.mailer');
+                }
+
+                /** @var Mailer $mailer */
+                $mailer->sendTicketUserNotificationEmailMessage($event->getTicket(), $eventName);
             }
 
-            /** @var Mailer $mailer */
-            $mailer->sendTicketUserNotificationEmailMessage($event->getTicket(), $eventName);
         }
     }
 
