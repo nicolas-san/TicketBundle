@@ -139,9 +139,14 @@ class TicketFromMailCommand extends ContainerAwareCommand
                         $ticket->setUserCreated($messageOwner);
                         $ticket->setLastUser($messageOwner);
 
+                        $message->setCreatedAt(new \DateTime('now'));
+
                         $message->setStatus(TicketMessageInterface::STATUS_OPEN)
                             ->setUser($messageOwner)
-                            ->setMailDate(new \DateTime($mail->headers->date));
+                            ->setMailDate(new \DateTime($mail->headers->date))
+                        ;
+
+                        $message->setTicket($ticket);
 
                         //update the ticket once, to have a ticket ID if it's a new one, needed for the attachment
                         $ticketManager->updateTicket($ticket, $message);
