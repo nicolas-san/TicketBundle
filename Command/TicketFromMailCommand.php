@@ -146,8 +146,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
                             ->setMailDate(new \DateTime($mail->headers->date))
                         ;
 
-                        $message->setTicket($ticket);
-
                         //update the ticket once, to have a ticket ID if it's a new one, needed for the attachment
                         $ticketManager->updateTicket($ticket, $message);
                     } else {
@@ -203,8 +201,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
 
                     //add this message to the current ticket
                     $ticket->addMessage($message);
-
-                    $ticketManager->updateTicket($ticket, $message);
 
                     try {
                         $ticketManager->updateTicket($ticket, $message);
