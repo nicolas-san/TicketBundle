@@ -57,7 +57,7 @@ class TicketSubscriber implements EventSubscriberInterface
         $ticketFeature = $this->container->get('hackzilla_ticket.features');
         $mailer = false;
 
-        if ($event->getMessage()->getMessage() != null) {
+        if ($event->getMessage() != null) {
 
             if ($ticketFeature->hasFeature('notification')) {
                 $mailer = $this->container->get('hackzilla_ticket.notification.mailer');
