@@ -50,7 +50,8 @@ class TicketFromMailCommand extends ContainerAwareCommand
             $noValidateCert = '';
         }
 
-        imap_timeout(20);
+        //todo make a parameter for this value
+        imap_timeout(60);
         $mailbox = new \PhpImap\Mailbox('{' . $this->getContainer()->getParameter('hackzilla_ticket.from_mail')['imap_server_address'] . ':' . $this->getContainer()->getParameter('hackzilla_ticket.from_mail')['imap_server_port'] . '/imap/ssl' . $noValidateCert . '}INBOX', $this->getContainer()->getParameter('hackzilla_ticket.from_mail')['imap_login'], $this->getContainer()->getParameter('hackzilla_ticket.from_mail')['imap_pwd'], $this->getContainer()->getParameter('vich_uploader.mappings')['ticket_message_attachment']['upload_destination']);
 
         // Read all messaged into an array:
