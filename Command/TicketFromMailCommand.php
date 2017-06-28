@@ -203,7 +203,6 @@ class TicketFromMailCommand extends ContainerAwareCommand
                         //$message->setAttachments($newAttachemnts);
                     }
 
-                    die();
                     //add this message to the current ticket
                     $ticket->addMessage($message);
 
