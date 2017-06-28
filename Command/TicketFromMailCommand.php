@@ -151,6 +151,7 @@ class TicketFromMailCommand extends ContainerAwareCommand
                         $ticketManager->updateTicket($ticket, $message);
                     } else {
                         $message = $ticketManager->createMessage($ticket);
+                        $message->setStatus(TicketMessageInterface::STATUS_OPEN);
                     }
 
                     if ($mail->textPlain) {
