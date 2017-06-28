@@ -179,11 +179,14 @@ class TicketFromMailCommand extends ContainerAwareCommand
                         //https://github.com/dustin10/VichUploaderBundle/blob/master/Resources/doc/known_issues.md#no-upload-is-triggered-when-manually-injecting-an-instance-of-symfonycomponenthttpfoundationfilefile
                         $message->setAttachmentFile(new UploadedFile($attachment->filePath, $attachment->name, null, null, null, true));
                     } elseif ($nbAttachment > 1) {
+                        //get the attachment class from config
+                        $attachmentClass = $this->getContainer()->getParameter('hackzilla_ticket.model.message.attachment.class');
                         //init the array
                         $newAttachemnts = [];
                         foreach ($mail->getAttachments() as $attachment) {
                             //create a new attachment entity
-                            $newAttachemnt = new TicketMessageAttachment();
+                            $newAttachemnt = new $attachmentClass();
+                            //$newAttachemnt = new \N2P\HelpdeskBundle\Entity\TicketMessageAttachment();
                             $newAttachemnt->setMessage($message);
                             //set the attachment name
                             $newAttachemnt->setAttachmentFilename($attachment->name);
@@ -200,6 +203,7 @@ class TicketFromMailCommand extends ContainerAwareCommand
                         //$message->setAttachments($newAttachemnts);
                     }
 
+                    die();
                     //add this message to the current ticket
                     $ticket->addMessage($message);
 
