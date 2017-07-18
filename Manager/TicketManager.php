@@ -113,6 +113,7 @@ class TicketManager implements TicketManagerInterface
             $this->objectManager->persist($message);
         }
         $this->objectManager->flush();
+        $this->objectManager->refresh($ticket);
 
         return $ticket;
     }
