@@ -161,7 +161,13 @@ class TicketFromMailCommand extends ContainerAwareCommand
                     }
                     $message->setMessagePlain(strip_tags(htmlspecialchars(imap_utf8(nl2br($mail->textPlain))), '<br>'));
                     $message->setMessageHtml(htmlspecialchars(imap_utf8($mail->textHtml)));
-                    $message->setHeaderRaw($mail->headersRaw);
+                    $message->setHeaderRaw(imap_utf8($mail->headersRaw));
+
+                    if (mb_detect_encoding($mail->headers->from[0]->personal, mb_detect_order(), true) === false) {
+                        //fix for bad "personal" string, if we can't detect the encoding, we choose to override it with an empty string, because sometimes, with bad encoding, serialize/unserialize fail
+                        $mail->headers->from[0]->personal = "";
+                        $mail->headers->reply_to[0]->personal = "";
+                    }
                     $message->setFrom($mail->headers->from[0]);
                     $message->setReplyTo($mail->headers->reply_to[0]);
 

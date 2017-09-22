@@ -237,8 +237,6 @@ class Mailer
             $recipientsBcc
         );
 
-
-
         // Prepare template args
         $args = array(
             'ticket' => $ticket

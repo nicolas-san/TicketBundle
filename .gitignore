@@ -3,3 +3,9 @@ composer.lock
 .php_cs.cache
 /Controller/TicketFromMailController.php
 /.idea/
+/.idea/modules.xml
+/.idea/vcs.xml
+/.idea/TicketBundle.iml
+/.idea/workspace.xml
+/.idea/encodings.xml
+/.idea/php.xml
