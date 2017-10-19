@@ -25,7 +25,7 @@
     {% set previousStatus = null %}
     {% set previousPriority = null %}
 
-    {% for message in ticket.messages %}
+    {% for message in ticket.messages|reverse %}
 
         {% if previousStatus and previousStatus != message.status %}
             {{ macros.status_alert(message.status, message.statusString|trans) }}
