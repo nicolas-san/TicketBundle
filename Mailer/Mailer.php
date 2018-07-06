@@ -126,7 +126,7 @@ class Mailer
         foreach ($users as $user) {
             if ($user->hasRole('ROLE_TICKET_ADMIN')) {
                 if (!in_array($user->getEmail(), $recipients) && $message->getUser() !== $user->getId()) {
-                    $recipients[] = $user->getEmail();
+                    $recipientsBcc[] = $user->getEmail();
                 }
             }
         }
