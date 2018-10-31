@@ -267,8 +267,7 @@ class Mailer
      */
     private function prepareEmailMessage($subject, $to, $bcc = false, $attachmentPath = false)
     {
-        $message = (new Swift_Message())
-            ->setSubject($subject)
+        $message = (new \Swift_Message($subject))
             ->setFrom(array(
                 $this->container->getParameter('hackzilla_ticket.notification.emails')['sender_email']
                 => $this->container->getParameter('hackzilla_ticket.notification.emails')['sender_name']
